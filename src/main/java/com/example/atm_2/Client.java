@@ -39,14 +39,29 @@ public class Client {
         return this.isBlocked == 1;
     }
 
-    public void setBlockAccount(boolean status){
+    public void setAccountAsBlock(boolean status){
         if (status){
             this.isBlocked = 1;
         }else {
             this.isBlocked = 0;
         }
 
+        String query = String.format("update Clients set blocked = %x where clientCode = \"%s\"",
+                this.isBlocked, this.code );
+        try {
+            Class.forName(CLASS_NAME);
+            Connection con = DriverManager.getConnection(CONNECTION_STRING);
+            Statement stmt = con.createStatement();
 
+            try {
+               stmt.executeUpdate(query);
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public boolean isAuthenticated(String PIN){

@@ -3,8 +3,6 @@ package com.example.atm_2;
  * Sample Skeleton for 'Login.fxml' Controller Class
  */
 
-import java.sql.*;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -91,7 +89,7 @@ public class LoginController {
 
                             }
                         }else {
-
+                            currentUser.setAccountAsBlock(true);
                             attempts = 0;
                             errorAlert.setHeaderText("Blocked Client");
                             errorAlert.setContentText("Your account has been blocked please contact your bank.");
