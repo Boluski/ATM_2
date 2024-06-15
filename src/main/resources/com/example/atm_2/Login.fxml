@@ -35,15 +35,15 @@
                   <PasswordField fx:id="PINInput" alignment="TOP_LEFT" prefWidth="200.0" HBox.hgrow="ALWAYS" />
                </children>
             </HBox>
-            <HBox maxWidth="-Infinity" prefHeight="19.0" prefWidth="250.0">
-               <children>
-                  <Text fx:id="errorMessageText" strokeType="OUTSIDE" strokeWidth="0.0" text="Error Message">
-                     <font>
-                        <Font size="16.0" />
-                     </font>
-                  </Text>
-               </children>
-            </HBox>
+<!--            <HBox maxWidth="-Infinity" prefHeight="19.0" prefWidth="250.0">-->
+<!--               <children>-->
+<!--                  <Text fx:id="errorMessageText" strokeType="OUTSIDE" strokeWidth="0.0" text="Error Message">-->
+<!--                     <font>-->
+<!--                        <Font size="16.0" />-->
+<!--                     </font>-->
+<!--                  </Text>-->
+<!--               </children>-->
+<!--            </HBox>-->
             <HBox alignment="CENTER_RIGHT" layoutX="10.0" layoutY="110.0" maxWidth="-Infinity" prefHeight="26.0" prefWidth="250.0" spacing="10.0">
                <children>
                   <RadioButton fx:id="clientRadio" mnemonicParsing="false" selected="true" text="Client">

@@ -5,6 +5,10 @@ package com.example.atm_2;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
@@ -14,6 +18,11 @@ import javafx.scene.text.Text;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+
+import java.util.Stack;
 
 public class LoginController {
 
@@ -29,8 +38,8 @@ public class LoginController {
     @FXML // fx:id="clientRadio"
     private RadioButton clientRadio; // Value injected by FXMLLoader
 
-    @FXML // fx:id="errorMessageText"
-    private Text errorMessageText; // Value injected by FXMLLoader
+//    @FXML // fx:id="errorMessageText"
+//    private Text errorMessageText; // Value injected by FXMLLoader
 
     @FXML // fx:id="loginButton"
     private Button loginButton; // Value injected by FXMLLoader
@@ -59,59 +68,82 @@ public class LoginController {
             errorAlert.setContentText("Enter a Code and a PIN.");
             errorAlert.showAndWait();
         } else {
+            if (userPIN.length() == 4){
+                if(asClient){
+                    if (Client.canConnectToServer()){
+                        if (Client.isClient(userCode)){
+                            currentUser = new Client(userCode);
+                            System.out.println(currentUser);
 
-            if(asClient){
+                            if (attempts < 3){
+                                if(!currentUser.isBlocked()){
+                                    if(currentUser.isAuthenticated(userPIN)){
+                                        // TODO Redirect to new page.
+                                        System.out.println("User is authenticated");
+                                        FXMLLoader root;
+                                        try {
+                                            root = new FXMLLoader(ATM.class.getResource("Client.fxml"));
+                                            Scene scene = new Scene(root.load());
 
-                if (Client.canConnectToServer()){
-                    if (Client.isClient(userCode)){
-                        currentUser = new Client(userCode);
-                        System.out.println(currentUser);
+
+                                            ClientController controller = root.getController();
+                                            controller.setData(currentUser);
+
+                                            Stage stage = new Stage();
+                                            stage.setTitle("ATM - Client");
+                                            stage.setUserData(currentUser);
+                                            stage.setScene(scene);
+                                            stage.show();
+
+                                            ((Node)(event.getSource())).getScene().getWindow().hide();
+
+                                        }catch (IOException e){
+                                            e.printStackTrace();
+                                        }
+
+                                    }else {
+                                        attempts++;
+                                        errorAlert.setHeaderText("Wrong PIN");
+                                        errorAlert.setContentText("The PIN you entered is incorrect.");
+                                        errorAlert.showAndWait();
 
 
-                        if (attempts < 6){
-                            if(!currentUser.isBlocked()){
-                                if(currentUser.isAuthenticated(userPIN)){
-                                    // TODO Redirect to new page.
-                                    System.out.println("User is authenticated");
-
-                                }else {
-                                    attempts++;
-                                    errorAlert.setHeaderText("Wrong PIN");
-                                    errorAlert.setContentText("The PIN you entered is incorrect.");
+                                    }
+                                }else{
+                                    errorAlert.setHeaderText("Blocked Client");
+                                    errorAlert.setContentText("Your account is blocked please contact your bank.");
                                     errorAlert.showAndWait();
 
-
                                 }
-                            }else{
+                            }else {
+                                currentUser.setAccountAsBlock(true);
+                                attempts = 0;
                                 errorAlert.setHeaderText("Blocked Client");
-                                errorAlert.setContentText("Your account is blocked please contact your bank.");
+                                errorAlert.setContentText("Your account has been blocked please contact your bank.");
                                 errorAlert.showAndWait();
-
                             }
+
+
                         }else {
-                            currentUser.setAccountAsBlock(true);
-                            attempts = 0;
-                            errorAlert.setHeaderText("Blocked Client");
-                            errorAlert.setContentText("Your account has been blocked please contact your bank.");
+                            errorAlert.setHeaderText("No Such Client");
+                            errorAlert.setContentText("This Client does not exist.");
                             errorAlert.showAndWait();
                         }
 
-
                     }else {
-                        errorAlert.setHeaderText("No Such Client");
-                        errorAlert.setContentText("This Client does not exist.");
+                        errorAlert.setHeaderText("Server Error");
+                        errorAlert.setContentText("Sorry we could not connect to the server.");
                         errorAlert.showAndWait();
+
                     }
 
-                }else {
-                    errorAlert.setHeaderText("Server Error");
-                    errorAlert.setContentText("Sorry we could not connect to the server.");
-                    errorAlert.showAndWait();
-
-
                 }
-
+            }else {
+                errorAlert.setHeaderText("PIN format");
+                errorAlert.setContentText("PIN must be only four characters.");
+                errorAlert.showAndWait();
             }
+
 
 
         }
