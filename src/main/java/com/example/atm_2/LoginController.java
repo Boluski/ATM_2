@@ -91,7 +91,7 @@ public class LoginController {
 
                                             Stage stage = new Stage();
                                             stage.setTitle("ATM - Client");
-                                            stage.setUserData(currentUser);
+//                                            stage.setUserData(currentUser);
                                             stage.setScene(scene);
                                             stage.show();
 

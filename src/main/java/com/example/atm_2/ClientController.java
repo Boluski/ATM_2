@@ -6,10 +6,18 @@ package com.example.atm_2;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.scene.control.Dialog;
+
+import java.io.IOException;
 
 public class ClientController {
 
@@ -68,6 +76,7 @@ public class ClientController {
     private Button withdrawButton; // Value injected by FXMLLoader
 
     Client currentUser;
+    FXMLLoader root;
 
     public void initialize(){
 
@@ -75,8 +84,11 @@ public class ClientController {
 
     public void setData(Client user){
         currentUser = user;
-        System.out.println("In Client");
         System.out.println(currentUser);
+
+        emailLabel.setText(currentUser.getEmail());
+        phoneLabel.setText(currentUser.getPhoneNumber());
+        fullNameLabel.setText(currentUser.getFullName());
     }
 
     @FXML
@@ -91,6 +103,22 @@ public class ClientController {
 
     @FXML
     void handleCreateButton(ActionEvent event) {
+        try {
+            root = new FXMLLoader(ATM.class.getResource("CreateAccount.fxml"));
+            Scene scene = new Scene(root.load(), 400, 150);
+            CreateAccountController controller = root.getController();
+            controller.setDate(currentUser);
+
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.WINDOW_MODAL);
+            dialog.initOwner(((Node)(event.getSource())).getScene().getWindow());
+            dialog.setTitle("Create Account");
+
+            dialog.setScene(scene);
+            dialog.showAndWait();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
 
     }
 
@@ -101,6 +129,7 @@ public class ClientController {
 
     @FXML
     void handleLogOutButton(ActionEvent event) {
+
 
     }
 

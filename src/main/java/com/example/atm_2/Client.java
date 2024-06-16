@@ -1,16 +1,16 @@
 package com.example.atm_2;
 
 import java.sql.*;
+import java.util.ArrayList;
 
-public class Client {
-    private static final String CONNECTION_STRING = "jdbc:mysql://127.0.0.1/atm?user=bolu&password=12345&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&autoReconnect=true&useSSL=false";
-    private static final String CLASS_NAME = "com.mysql.cj.jdbc.Driver";
+public class Client implements User {
     private String code;
     private String fullName;
     private String phoneNumber;
     private String email;
     private String PIN;
     private int isBlocked;
+    private ArrayList<Account> accounts = new ArrayList<>();
 
     public Client(String code){
         String query = String.format("select * from Clients where Clients.clientCode = \"%s\" ", code);
@@ -27,7 +27,6 @@ public class Client {
                 this.email = rs.getString(4);
                 this.PIN = rs.getString(5);
                 this.isBlocked = rs.getInt(6);
-
             }
 
         }catch (Exception e){
@@ -68,6 +67,66 @@ public class Client {
         return this.PIN.equals(PIN);
     }
 
+    public String getEmail(){
+        return this.email;
+    }
+
+    public String getFullName(){
+        return this.fullName;
+    }
+
+    public String getPhoneNumber(){
+        return String.format("(%s) %s-%s",
+                this.phoneNumber.substring(0, 3),
+                this.phoneNumber.substring(3, 6),
+                this.phoneNumber.substring( 6));
+    }
+
+    public boolean asCheckingAccount(){
+        String query = String.format("select * from Accounts where accountOwner = \"%s\" and accountType = 1", code);
+
+        try {
+            Class.forName(CLASS_NAME);
+            Connection con = DriverManager.getConnection(CONNECTION_STRING);
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            boolean result = rs.next();
+
+            return result;
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public void addCheckingAccount(String name){
+        String query = String.format(
+                        "insert into Accounts(accountOwner, AccountType, accountName, balance)\n" +
+                        "values(\"%s\", 1, \"%s\", 0)",
+                        this.code, name );
+        try {
+            Class.forName(CLASS_NAME);
+            Connection con = DriverManager.getConnection(CONNECTION_STRING);
+            Statement stmt = con.createStatement();
+
+            try {
+                stmt.executeUpdate(query);
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        Checking account = new Checking(name, 0);
+        this.accounts.add(account);
+
+        System.out.println(account);
+
+
+    }
 
     public static boolean canConnectToServer(){
         try {
@@ -80,7 +139,6 @@ public class Client {
 
         return true;
     }
-
 
     public static boolean isClient(String code){
 //        String query = String.format("select * from Clients where Clients.clientCode = \"%s\" ", code);
