@@ -1,11 +1,11 @@
 /**
- * Sample Skeleton for 'Untitled.fxml' Controller Class
  */
 
 package com.example.atm_2;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
@@ -24,6 +24,17 @@ public class TransferController {
 
     @FXML // fx:id="transferButton"
     private Button transferButton; // Value injected by FXMLLoader
+
+    private Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
+    Client currentUser;
+
+    public static boolean isAlphabet(String input) {
+        return input.matches(".*[A-Za-z].*");
+    }
+
+    public void setDate(Client user){
+        currentUser = user;
+    }
 
     @FXML
     void handleChange(KeyEvent event) {
