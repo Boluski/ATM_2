@@ -75,7 +75,7 @@ public class CreateAccountController {
 
 
         infoAlert.setHeaderText("Success!");
-        infoAlert.setContentText("Your Account has been Created.");
+        infoAlert.setContentText("Your Account has been Created!");
         infoAlert.showAndWait();
 
         ((Node)(event.getSource())).getScene().getWindow().hide();

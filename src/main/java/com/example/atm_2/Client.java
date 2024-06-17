@@ -1,6 +1,8 @@
 package com.example.atm_2;
 
+import java.math.BigDecimal;
 import java.sql.*;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class Client implements User {
@@ -11,6 +13,7 @@ public class Client implements User {
     private String PIN;
     private int isBlocked;
     private final ArrayList<Account> accounts = new ArrayList<>();
+    private final ArrayList<Account> canDepositAccount = new ArrayList<>();
 
     public Client(String code){
         String query =
@@ -45,6 +48,11 @@ public class Client implements User {
                     case 4 -> new LineOfCredit(accountName, balance);
                     default -> new Checking(accountName, balance);
                 };
+
+                if (!account.getTag().equals("LineOfCredit")){
+                    this.canDepositAccount.add(account);
+                }
+
                 this.accounts.add(account);
             }
 
@@ -150,6 +158,7 @@ public class Client implements User {
 
         Checking account = new Checking(name, 0);
         this.accounts.add(account);
+        this.canDepositAccount.add(account);
 
         System.out.println(account);
 
@@ -178,6 +187,7 @@ public class Client implements User {
 
         Saving account = new Saving(name, 0);
         this.accounts.add(account);
+        this.canDepositAccount.add(account);
 
         System.out.println(account);
     }
@@ -204,6 +214,7 @@ public class Client implements User {
 
         Mortgage account = new Mortgage(name, 0);
         this.accounts.add(account);
+        this.canDepositAccount.add(account);
 
         System.out.println(account);
 
@@ -233,6 +244,58 @@ public class Client implements User {
         this.accounts.add(account);
 
         System.out.println(account);
+    }
+
+    public ArrayList<String> getCanDepositAccounts(){
+        ArrayList<String> result = new ArrayList<>();
+
+        for (Account account: this.canDepositAccount){
+            result.add(account.getSelectableName());
+        }
+
+        return result;
+    }
+
+    public void deposit(String accountName, float amount){
+        DecimalFormat df = new DecimalFormat("#.00");
+        float fAmount = Float.parseFloat(df.format(amount));
+
+        for (Account account: this.canDepositAccount){
+            if (account.getSelectableName().equals(accountName)){
+                account.addMoney(fAmount);
+                System.out.println(account);
+
+                String query = String.format(
+                                "update Accounts\n" +
+                                "set balance = %.2f\n" +
+                                "where accountOwner = \"%s\" and accountName = \"%s\"",
+                                account.getBalance(),this.code, account.getName());
+
+
+                String transactionQuery = String.format(
+                        "insert into Transaction(client, accountType, amount, transactionType, balance)\n" +
+                        "values(\"%s\", %x, %.2f, 1, %.2f)", this.code, account.getDbCode(), fAmount, account.getBalance());
+
+                try {
+                    Class.forName(CLASS_NAME);
+                    Connection con = DriverManager.getConnection(CONNECTION_STRING);
+                    Statement stmt = con.createStatement();
+
+                    try {
+                        stmt.executeUpdate(query);
+                        stmt.executeUpdate(transactionQuery);
+                    }catch (SQLException e){
+                        e.printStackTrace();
+                    }
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
+                break;
+            }
+        }
+
     }
 
     public static boolean canConnectToServer(){

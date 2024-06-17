@@ -4,6 +4,7 @@ public class Checking implements Account{
     public final String tag = "Checking";
     public String name;
     public float balance;
+    public int databaseCode = 1;
 
     public Checking(String name, float balance){
         this.name = name;
@@ -16,9 +17,24 @@ public class Checking implements Account{
     }
 
     @Override
+    public String getSelectableName(){
+        return String.format("%s (%s)", name, "Checking");
+    }
+
+    @Override
+    public int getDbCode(){
+        return this.databaseCode;
+    }
+
+    @Override
     public void addMoney(float amount){
         this.balance += amount;
     };
+
+    @Override
+    public String getName(){
+        return this.name;
+    }
 
     @Override
     public float getBalance() {

@@ -4,4 +4,7 @@ public interface Account {
     float getBalance();
     void addMoney(float amount);
     String getTag();
+    String getSelectableName();
+    String getName();
+    int getDbCode();
 }

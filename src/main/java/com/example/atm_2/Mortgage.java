@@ -4,6 +4,7 @@ public class Mortgage implements Account{
     public final String tag = "Mortgage";
     public String name;
     public float balance;
+    public int databaseCode = 3;
 
     public Mortgage(String name, float balance){
         this.name = name;
@@ -13,6 +14,22 @@ public class Mortgage implements Account{
     @Override
     public String getTag(){
         return tag;
+    }
+
+
+    @Override
+    public String getSelectableName(){
+        return String.format("%s (%s)", name, "Mortgage");
+    }
+
+    @Override
+    public int getDbCode(){
+        return this.databaseCode;
+    }
+
+    @Override
+    public String getName(){
+        return this.name;
     }
 
     @Override

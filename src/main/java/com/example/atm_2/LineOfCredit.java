@@ -4,6 +4,7 @@ public class LineOfCredit implements Account{
     public final String tag = "LineOfCredit";
     public String name;
     public float balance;
+    public int databaseCode = 4;
 
     public LineOfCredit(String name, float balance){
         this.name = name;
@@ -13,6 +14,21 @@ public class LineOfCredit implements Account{
     @Override
     public String getTag(){
         return tag;
+    }
+
+    @Override
+    public String getSelectableName(){
+        return String.format("%s (%s)", name, "Line Of Credit");
+    }
+
+    @Override
+    public String getName(){
+        return this.name;
+    }
+
+    @Override
+    public int getDbCode(){
+        return this.databaseCode;
     }
 
     @Override
