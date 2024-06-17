@@ -10,7 +10,7 @@ public class Client implements User {
     private String email;
     private String PIN;
     private int isBlocked;
-    private ArrayList<Account> accounts = new ArrayList<>();
+    private final ArrayList<Account> accounts = new ArrayList<>();
 
     public Client(String code){
         String query =
@@ -102,45 +102,29 @@ public class Client implements User {
     }
 
     public boolean asCheckingAccount(){
-//        String query = String.format("select * from Accounts where accountOwner = \"%s\" and accountType = 1", this.code);
-//
-//        try {
-//            Class.forName(CLASS_NAME);
-//            Connection con = DriverManager.getConnection(CONNECTION_STRING);
-//            Statement stmt = con.createStatement();
-//            ResultSet rs = stmt.executeQuery(query);
-//            boolean result = rs.next();
-//
-//            return result;
-//
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
-
         if (this.accounts.isEmpty()) {
             return false;
         }else {
-
+            for (Account account: this.accounts){
+                if (account.getTag().equals("Checking")){
+                    return true;
+                }
+            }
         }
 
         return false;
     }
 
     public boolean asLineOfCreditAccount(){
-//        String query = String.format("select * from Accounts where accountOwner = \"%s\" and accountType = 4", this.code);
-//
-//        try {
-//            Class.forName(CLASS_NAME);
-//            Connection con = DriverManager.getConnection(CONNECTION_STRING);
-//            Statement stmt = con.createStatement();
-//            ResultSet rs = stmt.executeQuery(query);
-//            boolean result = rs.next();
-//
-//            return result;
-//
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
+        if (this.accounts.isEmpty()) {
+            return false;
+        }else {
+            for (Account account: this.accounts){
+                if (account.getTag().equals("LineOfCredit")){
+                    return true;
+                }
+            }
+        }
         return false;
     }
 

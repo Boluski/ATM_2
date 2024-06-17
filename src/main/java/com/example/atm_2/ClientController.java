@@ -124,7 +124,22 @@ public class ClientController {
 
     @FXML
     void handleDepositButton(ActionEvent event) {
+        try {
+            root = new FXMLLoader(ATM.class.getResource("Deposit.fxml"));
+            Scene scene = new Scene(root.load(), 400, 150);
+            DepositController controller = root.getController();
+            controller.setDate(currentUser);
 
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.WINDOW_MODAL);
+            dialog.initOwner(((Node)(event.getSource())).getScene().getWindow());
+            dialog.setTitle("Deposit");
+
+            dialog.setScene(scene);
+            dialog.showAndWait();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     @FXML

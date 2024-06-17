@@ -7,6 +7,7 @@ package com.example.atm_2;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
@@ -26,7 +27,9 @@ public class CreateAccountController {
     @FXML // fx:id="createButton"
     private Button createButton; // Value injected by FXMLLoader
 
+    private Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
     Client currentUser;
+
     public void setDate(Client user){
         currentUser = user;
 
@@ -70,6 +73,10 @@ public class CreateAccountController {
             currentUser.addLineOfCreditAccount(accountName);
         }
 
+
+        infoAlert.setHeaderText("Success!");
+        infoAlert.setContentText("Your Account has been Created.");
+        infoAlert.showAndWait();
 
         ((Node)(event.getSource())).getScene().getWindow().hide();
     }

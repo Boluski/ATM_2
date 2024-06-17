@@ -11,6 +11,11 @@ public class Mortgage implements Account{
     }
 
     @Override
+    public String getTag(){
+        return tag;
+    }
+
+    @Override
     public void addMoney(float amount){
         this.balance += amount;
     };
