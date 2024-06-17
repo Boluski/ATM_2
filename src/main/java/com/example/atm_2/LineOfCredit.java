@@ -1,11 +1,11 @@
 package com.example.atm_2;
 
-public class Checking implements Account{
-    public final String tag = "Checking";
+public class LineOfCredit implements Account{
+    public final String tag = "LineOfCredit";
     public String name;
     public float balance;
 
-    public Checking(String name, float balance){
+    public LineOfCredit(String name, float balance){
         this.name = name;
         this.balance = balance;
     }
@@ -22,6 +22,6 @@ public class Checking implements Account{
 
     @Override
     public String toString() {
-        return String.format("Checking: %s-%.2f", this.name, this.balance);
+        return String.format("Line Of Credit: %s-%.2f", this.name, this.balance);
     }
 }

@@ -37,12 +37,16 @@ public class CreateAccountController {
         accounts.add("Checking");
         accounts.add("Savings");
         accounts.add("Mortgage");
-        accounts.add("Line of Credit");
+        accounts.add("Line Of Credit");
 
         if(!currentUser.asCheckingAccount()){
             accounts.remove(1);
             accounts.remove(1);
             accounts.remove(1);
+        }else{
+            if (currentUser.asLineOfCreditAccount()){
+                accounts.remove(3);
+            }
         }
 
         accountTypeCombo.getItems().addAll(accounts);
@@ -58,7 +62,14 @@ public class CreateAccountController {
 
         if(selected.equals("Checking")){
             currentUser.addCheckingAccount(accountName);
+        }else if(selected.equals("Savings")){
+            currentUser.addSavingAccount(accountName);
+        }else if (selected.equals("Mortgage")){
+            currentUser.addMortgageAccount(accountName);
+        } else if (selected.equals("Line Of Credit")) {
+            currentUser.addLineOfCreditAccount(accountName);
         }
+
 
         ((Node)(event.getSource())).getScene().getWindow().hide();
     }
