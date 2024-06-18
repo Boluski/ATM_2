@@ -269,22 +269,11 @@ public class ClientController {
             System.out.println(totalAmount);
             System.out.println(account);
 
-            if (currentUser.asPaperMoney(totalAmount)){
-                if (currentUser.withdraw(account, totalAmount)){
-                    infoAlert.setHeaderText("Congrats!");
-                    infoAlert.setContentText("Money as been withdrawn!");
-                    infoAlert.showAndWait();
-                }else {
-                    if (currentUser.asLineOfCreditAccount()){
-                        infoAlert.setHeaderText("Line of credit charged");
-                        infoAlert.setContentText("Because you don't have enough money in this account, " +
-                                "Your line of credit will be charged for the rest of the payment!");
-                        infoAlert.showAndWait();
-
-                        currentUser.withdrawAndUseLineOfCredit(account, totalAmount);
-
-                        infoAlert.setHeaderText("Success!");
-                        infoAlert.setContentText("Money as been withdrawn");
+            if (totalAmount != 0){
+                if (currentUser.asPaperMoney(totalAmount)){
+                    if (currentUser.withdraw(account, totalAmount)){
+                        infoAlert.setHeaderText("Congrats!");
+                        infoAlert.setContentText("Money as been withdrawn!");
                         infoAlert.showAndWait();
 
                         totalAmount = 0;
@@ -292,20 +281,58 @@ public class ClientController {
                         tenButton.setDisable(false);
                         twentyButton.setDisable(false);
                         thertyButton.setDisable(false);
-
-
                     }else {
-                        errorAlert.setHeaderText("Insufficient Amount!");
-                        errorAlert.setContentText("You Don't have enough money in this account!");
-                        errorAlert.showAndWait();
+                        if (currentUser.asLineOfCreditAccount()){
+                            infoAlert.setHeaderText("Line of credit charged");
+                            infoAlert.setContentText("Because you don't have enough money in this account, " +
+                                    "Your line of credit will be charged for the rest of the payment!");
+                            infoAlert.showAndWait();
+
+                            currentUser.withdrawAndUseLineOfCredit(account, totalAmount);
+
+                            infoAlert.setHeaderText("Success!");
+                            infoAlert.setContentText("Money as been withdrawn");
+                            infoAlert.showAndWait();
+
+                            totalAmount = 0;
+                            amountLabel.setText("$0.00");
+                            tenButton.setDisable(false);
+                            twentyButton.setDisable(false);
+                            thertyButton.setDisable(false);
+
+
+                        }else {
+                            errorAlert.setHeaderText("Insufficient Amount!");
+                            errorAlert.setContentText("You Don't have enough money in this account!");
+                            errorAlert.showAndWait();
+
+                            totalAmount = 0;
+                            amountLabel.setText("$0.00");
+                            tenButton.setDisable(false);
+                            twentyButton.setDisable(false);
+                            thertyButton.setDisable(false);
+                        }
                     }
+
+                }else {
+                    errorAlert.setHeaderText("No paper money!");
+                    errorAlert.setContentText("Not enough paper money to carry out this withdrawal!");
+                    errorAlert.showAndWait();
+
+                    totalAmount = 0;
+                    amountLabel.setText("$0.00");
+                    tenButton.setDisable(false);
+                    twentyButton.setDisable(false);
+                    thertyButton.setDisable(false);
                 }
 
             }else {
-                errorAlert.setHeaderText("Error!");
-                errorAlert.setContentText("Something went wrong, please try again later!");
+                errorAlert.setHeaderText("No amount!");
+                errorAlert.setContentText("Please select how much to withdraw!");
                 errorAlert.showAndWait();
             }
+
+
 
         }
 

@@ -365,14 +365,10 @@ public class Client implements User {
         for (Account indAccount: this.allSavingsAndCheckingAccount){
             if (indAccount.getSelectableName().equals(accountName)){
                 if (indAccount.getBalance() >= fAmount){
-
-                    System.out.println(indAccount);
-
                     indAccount.removeMoney(fAmount);
+                    this.paperMoney -= fAmount;
                     this.grandTotal -= fAmount;
                     account = indAccount;
-                    System.out.println(account);
-
                     result = true;
                 }else {
                     return false;
@@ -380,7 +376,35 @@ public class Client implements User {
             }
         }
 
+        String query = String.format(
+                        "update Accounts\n" +
+                        "set balance = %.2f\n" +
+                        "where accountOwner = \"%s\" and accountName = \"%s\"",
+                        account.getBalance(), this.code, account.getName());
 
+        String paperQuery = String.format("update Cash\n" +
+                "set balance = %.2f", this.paperMoney);
+
+        String transactionQuery = String.format(
+                        "insert into Transaction(client, accountType, amount, transactionType, balance)\n" +
+                        "values(\"%s\", %x, %.2f, 2, %.2f)", this.code, account.getDbCode(), fAmount, account.getBalance());
+
+        try {
+            Class.forName(CLASS_NAME);
+            Connection con = DriverManager.getConnection(CONNECTION_STRING);
+            Statement stmt = con.createStatement();
+
+            try {
+                stmt.executeUpdate(query);
+                stmt.executeUpdate(paperQuery);
+                stmt.executeUpdate(transactionQuery);
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         observableGrandTotal.set(this.getGrandTotal());
         return result;
@@ -389,41 +413,58 @@ public class Client implements User {
     public void withdrawAndUseLineOfCredit(String accountName, float amount){
         DecimalFormat df = new DecimalFormat("#.00");
         float fAmount = Float.parseFloat(df.format(amount));
-        boolean result = false;
+        float accountFunds = 0;
 
         Account account = null;
 
         for (Account indAccount: this.allSavingsAndCheckingAccount){
             if (indAccount.getSelectableName().equals(accountName)){
-                float accountFunds = indAccount.getBalance();
+                accountFunds = indAccount.getBalance();
 
+                this.paperMoney -= fAmount;
                 fAmount -= accountFunds;
 
-                System.out.println(indAccount);
                 indAccount.removeMoney(accountFunds);
                 this.grandTotal -= accountFunds;
-                System.out.println(indAccount);
 
-                System.out.println("-");
-                System.out.println(this.LOCAccount);
                 this.LOCAccount.removeMoney(fAmount);
                 this.grandTotal -= fAmount;
-                System.out.println(this.LOCAccount);
 
-//                    System.out.println(indAccount);
-//
-////                    indAccount.removeMoney(fAmount);
-//                    this.grandTotal -= fAmount;
-////                    account = indAccount;
-//                    System.out.println(account);
+                account = indAccount;
 
-//                    result = true;
-//                }else {
-////                    return false;
-//                }
             }
         }
 
+
+        String query = String.format(
+                "update Accounts\n" +
+                        "set balance = %.2f\n" +
+                        "where accountOwner = \"%s\" and accountName = \"%s\"",
+                account.getBalance(), this.code, account.getName());
+
+        String paperQuery = String.format("update Cash\n" +
+                "set balance = %.2f", this.paperMoney);
+
+        String transactionQuery = String.format(
+                        "insert into Transaction(client, accountType, amount, LOCAmount, transactionType, balance)\n" +
+                        "values(\"%s\", %x, %.2f, %.2f, 2, %.2f)", this.code, account.getDbCode(), accountFunds, fAmount, account.getBalance());
+
+        try {
+            Class.forName(CLASS_NAME);
+            Connection con = DriverManager.getConnection(CONNECTION_STRING);
+            Statement stmt = con.createStatement();
+
+            try {
+                stmt.executeUpdate(query);
+                stmt.executeUpdate(paperQuery);
+                stmt.executeUpdate(transactionQuery);
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         observableGrandTotal.set(this.getGrandTotal());
     }
 
