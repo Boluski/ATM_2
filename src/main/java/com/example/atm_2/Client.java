@@ -12,6 +12,7 @@ public class Client implements User {
     private String email;
     private String PIN;
     private int isBlocked;
+    private float grandTotal;
     private final ArrayList<Account> accounts = new ArrayList<>();
     private final ArrayList<Account> canDepositAccount = new ArrayList<>();
     private final ArrayList<Checking> allCheckingAccount = new ArrayList<>();
@@ -50,6 +51,7 @@ public class Client implements User {
                     default -> new Checking(accountName, balance);
                 };
 
+                boolean isLOC = false;
                 if (!account.getTag().equals("LineOfCredit")){
                     this.canDepositAccount.add(account);
 
@@ -57,8 +59,14 @@ public class Client implements User {
                         this.allCheckingAccount.add((Checking) account);
                     }
 
+                }else {
+                    this.grandTotal -= account.getBalance();
+                    isLOC = true;
                 }
 
+                if(!isLOC){
+                    this.grandTotal += account.getBalance();
+                }
                 this.accounts.add(account);
             }
 
@@ -283,6 +291,20 @@ public class Client implements User {
         return result;
     }
 
+    public ArrayList<String> getAllBalance(){
+        ArrayList<String> result = new ArrayList<>();
+
+        for (Account account: this.accounts){
+            result.add(String.format("$%.2f", account.getBalance()));
+        }
+
+        return result;
+    }
+
+    public String getGrandTotal(){
+        return String.format("$%.2f", this.grandTotal);
+    }
+
     public boolean payBill(String accountName, String billName, float amount){
         DecimalFormat df = new DecimalFormat("#.00");
         float fAmount = Float.parseFloat(df.format(amount + 1.25));
@@ -297,6 +319,7 @@ public class Client implements User {
                     System.out.println(indAccount);
 
                     indAccount.removeMoney(fAmount);
+                    this.grandTotal -= fAmount;
                     account = indAccount;
                     System.out.println(account);
 
@@ -419,6 +442,7 @@ public class Client implements User {
         for (Account account: this.canDepositAccount){
             if (account.getSelectableName().equals(accountName)){
                 account.addMoney(fAmount);
+                this.grandTotal += fAmount;
                 System.out.println(account);
 
                 String query = String.format(
