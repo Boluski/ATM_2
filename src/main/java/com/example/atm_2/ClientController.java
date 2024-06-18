@@ -21,9 +21,6 @@ public class ClientController {
     @FXML
     private ListView<String> accountListView;
 
-//    @FXML // fx:id="accountToggle"
-//    private ToggleGroup accountToggle; // Value injected by FXMLLoader
-
     @FXML // fx:id="amountLabel"
     private Label amountLabel; // Value injected by FXMLLoader
 
@@ -35,9 +32,6 @@ public class ClientController {
 
     @FXML // fx:id="billButton"
     private Button billButton; // Value injected by FXMLLoader
-
-//    @FXML // fx:id="checkingRadio"
-//    private RadioButton checkingRadio; // Value injected by FXMLLoader
 
     @FXML // fx:id="createButton"
     private Button createButton; // Value injected by FXMLLoader
@@ -56,9 +50,6 @@ public class ClientController {
 
     @FXML // fx:id="phoneLabel"
     private Label phoneLabel; // Value injected by FXMLLoader
-
-//    @FXML // fx:id="savingsRadio"
-//    private RadioButton savingsRadio; // Value injected by FXMLLoader
 
     @FXML // fx:id="tenButton"
     private Button tenButton; // Value injected by FXMLLoader
@@ -79,68 +70,82 @@ public class ClientController {
     FXMLLoader root;
     float totalAmount = 0;
     float maxAmount = 1000;
-    private Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
-    private Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-
-    public void initialize(){
-
-    }
+    private final Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
+    private final Alert errorAlert = new Alert(Alert.AlertType.ERROR);
 
     public void setData(Client user){
         currentUser = user;
-        System.out.println(currentUser);
 
         emailLabel.setText(currentUser.getEmail());
         phoneLabel.setText(currentUser.getPhoneNumber());
         fullNameLabel.setText(currentUser.getFullName());
         balanceLabel.textProperty().bind(currentUser.observableGrandTotal);
         accountListView.setItems(currentUser.observableCheckingAndSaving);
-//        accountListView.getItems().addAll(currentUser.getAllCheckingAndSavingsAccounts());
+
     }
 
     @FXML
     void handleBalanceButton(ActionEvent event) {
-        try {
-            root = new FXMLLoader(ATM.class.getResource("Balance.fxml"));
-            Scene scene = new Scene(root.load(), 400, 300);
-            BalanceController controller = root.getController();
-            controller.setDate(currentUser);
+        if(currentUser.asCheckingAccount()){
 
-            Stage dialog = new Stage();
-            dialog.initModality(Modality.WINDOW_MODAL);
-            dialog.initOwner(((Node)(event.getSource())).getScene().getWindow());
-            dialog.setTitle("Balance");
+            try {
+                root = new FXMLLoader(ATM.class.getResource("Balance.fxml"));
+                Scene scene = new Scene(root.load(), 400, 300);
+                BalanceController controller = root.getController();
+                controller.setDate(currentUser);
 
-            dialog.setScene(scene);
-            dialog.showAndWait();
-        }catch (IOException e){
-            e.printStackTrace();
+                Stage dialog = new Stage();
+                dialog.initModality(Modality.WINDOW_MODAL);
+                dialog.initOwner(((Node)(event.getSource())).getScene().getWindow());
+                dialog.setTitle("Balance");
+
+                dialog.setScene(scene);
+                dialog.showAndWait();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+
+        }else {
+            errorAlert.setHeaderText("No account!");
+            errorAlert.setContentText("Please Create an account to get started!");
+            errorAlert.showAndWait();
         }
+
     }
 
     @FXML
     void handleBillButton(ActionEvent event) {
-        try {
-            root = new FXMLLoader(ATM.class.getResource("PayBill.fxml"));
-            Scene scene = new Scene(root.load(), 400, 175);
-            PayBillController controller = root.getController();
-            controller.setDate(currentUser);
+        if(currentUser.asCheckingAccount()){
 
-            Stage dialog = new Stage();
-            dialog.initModality(Modality.WINDOW_MODAL);
-            dialog.initOwner(((Node)(event.getSource())).getScene().getWindow());
-            dialog.setTitle("Pay Bill");
+            try {
+                root = new FXMLLoader(ATM.class.getResource("PayBill.fxml"));
+                Scene scene = new Scene(root.load(), 400, 175);
+                PayBillController controller = root.getController();
+                controller.setDate(currentUser);
 
-            dialog.setScene(scene);
-            dialog.showAndWait();
+                Stage dialog = new Stage();
+                dialog.initModality(Modality.WINDOW_MODAL);
+                dialog.initOwner(((Node)(event.getSource())).getScene().getWindow());
+                dialog.setTitle("Pay Bill");
 
-        }catch (IOException e){
-            e.printStackTrace();
+                dialog.setScene(scene);
+                dialog.showAndWait();
+
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+
+        }else {
+            errorAlert.setHeaderText("No account!");
+            errorAlert.setContentText("Please Create an account to get started!");
+            errorAlert.showAndWait();
         }
+
     }
 
     @FXML
     void handleCreateButton(ActionEvent event) {
+
         try {
             root = new FXMLLoader(ATM.class.getResource("CreateAccount.fxml"));
             Scene scene = new Scene(root.load(), 400, 150);
@@ -162,22 +167,31 @@ public class ClientController {
 
     @FXML
     void handleDepositButton(ActionEvent event) {
-        try {
-            root = new FXMLLoader(ATM.class.getResource("Deposit.fxml"));
-            Scene scene = new Scene(root.load(), 400, 150);
-            DepositController controller = root.getController();
-            controller.setDate(currentUser);
+        if(currentUser.asCheckingAccount()){
 
-            Stage dialog = new Stage();
-            dialog.initModality(Modality.WINDOW_MODAL);
-            dialog.initOwner(((Node)(event.getSource())).getScene().getWindow());
-            dialog.setTitle("Deposit");
+            try {
+                root = new FXMLLoader(ATM.class.getResource("Deposit.fxml"));
+                Scene scene = new Scene(root.load(), 400, 150);
+                DepositController controller = root.getController();
+                controller.setDate(currentUser);
 
-            dialog.setScene(scene);
-            dialog.showAndWait();
-        }catch (IOException e){
-            e.printStackTrace();
+                Stage dialog = new Stage();
+                dialog.initModality(Modality.WINDOW_MODAL);
+                dialog.initOwner(((Node)(event.getSource())).getScene().getWindow());
+                dialog.setTitle("Deposit");
+
+                dialog.setScene(scene);
+                dialog.showAndWait();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+
+        }else {
+            errorAlert.setHeaderText("No account!");
+            errorAlert.setContentText("Please Create an account to get started!");
+            errorAlert.showAndWait();
         }
+
     }
 
     @FXML
@@ -201,57 +215,92 @@ public class ClientController {
 
     @FXML
     void handleTenButton(ActionEvent event) {
-        float testAmount = totalAmount + (float) 10.00;
-        if(testAmount <= maxAmount){
-            totalAmount = testAmount;
-            amountLabel.setText(String.format("$%.2f", totalAmount));
+        if(currentUser.asCheckingAccount()){
+            float testAmount = totalAmount + (float) 10.00;
+            if(testAmount <= maxAmount){
+                totalAmount = testAmount;
+                amountLabel.setText(String.format("$%.2f", totalAmount));
+            }else {
+                tenButton.setDisable(true);
+            }
         }else {
-            tenButton.setDisable(true);
+            errorAlert.setHeaderText("No account!");
+            errorAlert.setContentText("Please Create an account to get started!");
+            errorAlert.showAndWait();
         }
+
 
     }
 
     @FXML
     void handleThertyButton(ActionEvent event) {
-        float testAmount = totalAmount + (float) 30.00;
-        if(testAmount <= maxAmount){
-            totalAmount = testAmount;
-            amountLabel.setText(String.format("$%.2f", totalAmount));
+        if(currentUser.asCheckingAccount()){
+
+            float testAmount = totalAmount + (float) 30.00;
+            if(testAmount <= maxAmount){
+                totalAmount = testAmount;
+                amountLabel.setText(String.format("$%.2f", totalAmount));
+            }else {
+                thertyButton.setDisable(true);
+            }
+
         }else {
-            thertyButton.setDisable(true);
+            errorAlert.setHeaderText("No account!");
+            errorAlert.setContentText("Please Create an account to get started!");
+            errorAlert.showAndWait();
         }
+
+
     }
 
     @FXML
     void handleTransferButton(ActionEvent event) {
-        try {
-            root = new FXMLLoader(ATM.class.getResource("Transfer.fxml"));
-            Scene scene = new Scene(root.load(), 400, 175);
-            TransferController controller = root.getController();
-            controller.setDate(currentUser);
+        if(currentUser.asCheckingAccount()){
 
-            Stage dialog = new Stage();
-            dialog.initModality(Modality.WINDOW_MODAL);
-            dialog.initOwner(((Node)(event.getSource())).getScene().getWindow());
-            dialog.setTitle("Transfer");
+            try {
+                root = new FXMLLoader(ATM.class.getResource("Transfer.fxml"));
+                Scene scene = new Scene(root.load(), 400, 175);
+                TransferController controller = root.getController();
+                controller.setDate(currentUser);
 
-            dialog.setScene(scene);
-            dialog.showAndWait();
+                Stage dialog = new Stage();
+                dialog.initModality(Modality.WINDOW_MODAL);
+                dialog.initOwner(((Node)(event.getSource())).getScene().getWindow());
+                dialog.setTitle("Transfer");
 
-        }catch (IOException e){
-            e.printStackTrace();
+                dialog.setScene(scene);
+                dialog.showAndWait();
+
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+
+        }else {
+            errorAlert.setHeaderText("No account!");
+            errorAlert.setContentText("Please Create an account to get started!");
+            errorAlert.showAndWait();
         }
+
     }
 
     @FXML
     void handleTwentyButton(ActionEvent event) {
-        float testAmount = totalAmount + (float) 20.00;
-        if(testAmount <= maxAmount){
-            totalAmount = testAmount;
-            amountLabel.setText(String.format("$%.2f", totalAmount));
+        if(currentUser.asCheckingAccount()){
+
+            float testAmount = totalAmount + (float) 20.00;
+            if(testAmount <= maxAmount){
+                totalAmount = testAmount;
+                amountLabel.setText(String.format("$%.2f", totalAmount));
+            }else {
+                twentyButton.setDisable(true);
+            }
+
         }else {
-            twentyButton.setDisable(true);
+            errorAlert.setHeaderText("No account!");
+            errorAlert.setContentText("Please Create an account to get started!");
+            errorAlert.showAndWait();
         }
+
     }
 
     @FXML

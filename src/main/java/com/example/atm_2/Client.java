@@ -1,6 +1,5 @@
 package com.example.atm_2;
 
-import java.math.BigDecimal;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import java.sql.*;
@@ -37,6 +36,7 @@ public class Client implements User {
                 String.format("select accountType, accountName, balance from Accounts where accountOwner=\"%s\"", code);
         String paperMoneyQuery =
                 String.format("select * from Cash");
+
         try {
             Class.forName(CLASS_NAME);
             Connection con = DriverManager.getConnection(CONNECTION_STRING);
@@ -99,7 +99,7 @@ public class Client implements User {
                 this.accounts.add(account);
             }
 
-            observableGrandTotal.set(this.getGrandTotal());
+            this.observableGrandTotal.set(this.getGrandTotal());
 
         }catch (Exception e){
             e.printStackTrace();
@@ -296,6 +296,7 @@ public class Client implements User {
 
         LineOfCredit account = new LineOfCredit(name, 0);
         this.accounts.add(account);
+        this.LOCAccount = account;
 
         System.out.println(account);
     }
