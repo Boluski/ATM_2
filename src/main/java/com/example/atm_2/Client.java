@@ -1,9 +1,13 @@
 package com.example.atm_2;
 
 import java.math.BigDecimal;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import javafx.beans.property.SimpleStringProperty;
+
 
 public class Client implements User {
     private String code;
@@ -13,8 +17,17 @@ public class Client implements User {
     private String PIN;
     private int isBlocked;
     private float grandTotal;
+
+    private float paperMoney;
+
+    public SimpleStringProperty observableGrandTotal = new SimpleStringProperty("$0.00");
+    public ObservableList<String> observableCheckingAndSaving = FXCollections.observableArrayList();
+
+    private LineOfCredit LOCAccount = null;
+
     private final ArrayList<Account> accounts = new ArrayList<>();
     private final ArrayList<Account> canDepositAccount = new ArrayList<>();
+    private final ArrayList<Account> allSavingsAndCheckingAccount = new ArrayList<>();
     private final ArrayList<Checking> allCheckingAccount = new ArrayList<>();
 
     public Client(String code){
@@ -22,6 +35,8 @@ public class Client implements User {
                 String.format("select * from Clients where Clients.clientCode = \"%s\" ", code);
         String accountQuery =
                 String.format("select accountType, accountName, balance from Accounts where accountOwner=\"%s\"", code);
+        String paperMoneyQuery =
+                String.format("select * from Cash");
         try {
             Class.forName(CLASS_NAME);
             Connection con = DriverManager.getConnection(CONNECTION_STRING);
@@ -35,6 +50,12 @@ public class Client implements User {
                 this.email = rs.getString(4);
                 this.PIN = rs.getString(5);
                 this.isBlocked = rs.getInt(6);
+            }
+
+            rs = stmt.executeQuery(paperMoneyQuery);
+
+            if (rs.next()){
+                this.paperMoney = rs.getFloat(1);
             }
 
             rs = stmt.executeQuery(accountQuery);
@@ -57,9 +78,17 @@ public class Client implements User {
 
                     if (account.getTag().equals("Checking")){
                         this.allCheckingAccount.add((Checking) account);
+                        this.allSavingsAndCheckingAccount.add(account);
+                        observableCheckingAndSaving.add(account.getSelectableName());
+                    }
+
+                    if (account.getTag().equals("Saving")){
+                        this.allSavingsAndCheckingAccount.add(account);
+                        observableCheckingAndSaving.add(account.getSelectableName());
                     }
 
                 }else {
+                    this.LOCAccount = (LineOfCredit) account;
                     this.grandTotal -= account.getBalance();
                     isLOC = true;
                 }
@@ -69,6 +98,8 @@ public class Client implements User {
                 }
                 this.accounts.add(account);
             }
+
+            observableGrandTotal.set(this.getGrandTotal());
 
         }catch (Exception e){
             e.printStackTrace();
@@ -150,6 +181,10 @@ public class Client implements User {
         return false;
     }
 
+    public boolean asPaperMoney(float amount){
+        return amount <= this.paperMoney;
+    }
+
     public void addCheckingAccount(String name){
         String query = String.format(
                         "insert into Accounts(accountOwner, AccountType, accountName, balance)\n" +
@@ -174,6 +209,8 @@ public class Client implements User {
         this.accounts.add(account);
         this.allCheckingAccount.add(account);
         this.canDepositAccount.add(account);
+        this.allSavingsAndCheckingAccount.add(account);
+        observableCheckingAndSaving.add(account.getSelectableName());
 
         System.out.println(account);
 
@@ -203,6 +240,8 @@ public class Client implements User {
         Saving account = new Saving(name, 0);
         this.accounts.add(account);
         this.canDepositAccount.add(account);
+        this.allSavingsAndCheckingAccount.add(account);
+        observableCheckingAndSaving.add(account.getSelectableName());
 
         System.out.println(account);
     }
@@ -295,14 +334,97 @@ public class Client implements User {
         ArrayList<String> result = new ArrayList<>();
 
         for (Account account: this.accounts){
-            result.add(String.format("$%.2f", account.getBalance()));
+            String accountBalance = String.format("$%.2f", account.getBalance());
+            Character c = accountBalance.charAt(1);
+            if (c.equals('-')){
+                accountBalance = accountBalance.replace("$-", "-$");
+            }
+            result.add(accountBalance);
         }
 
         return result;
     }
 
     public String getGrandTotal(){
-        return String.format("$%.2f", this.grandTotal);
+        String accountBalance = String.format("$%.2f", this.grandTotal);
+        Character c = accountBalance.charAt(1);
+        if (c.equals('-')){
+            accountBalance = accountBalance.replace("$-", "-$");
+        }
+
+        return accountBalance;
+    }
+
+    public boolean withdraw(String accountName, float amount){
+        DecimalFormat df = new DecimalFormat("#.00");
+        float fAmount = Float.parseFloat(df.format(amount));
+        boolean result = false;
+
+        Account account = null;
+
+        for (Account indAccount: this.allSavingsAndCheckingAccount){
+            if (indAccount.getSelectableName().equals(accountName)){
+                if (indAccount.getBalance() >= fAmount){
+
+                    System.out.println(indAccount);
+
+                    indAccount.removeMoney(fAmount);
+                    this.grandTotal -= fAmount;
+                    account = indAccount;
+                    System.out.println(account);
+
+                    result = true;
+                }else {
+                    return false;
+                }
+            }
+        }
+
+
+
+        observableGrandTotal.set(this.getGrandTotal());
+        return result;
+    }
+
+    public void withdrawAndUseLineOfCredit(String accountName, float amount){
+        DecimalFormat df = new DecimalFormat("#.00");
+        float fAmount = Float.parseFloat(df.format(amount));
+        boolean result = false;
+
+        Account account = null;
+
+        for (Account indAccount: this.allSavingsAndCheckingAccount){
+            if (indAccount.getSelectableName().equals(accountName)){
+                float accountFunds = indAccount.getBalance();
+
+                fAmount -= accountFunds;
+
+                System.out.println(indAccount);
+                indAccount.removeMoney(accountFunds);
+                this.grandTotal -= accountFunds;
+                System.out.println(indAccount);
+
+                System.out.println("-");
+                System.out.println(this.LOCAccount);
+                this.LOCAccount.removeMoney(fAmount);
+                this.grandTotal -= fAmount;
+                System.out.println(this.LOCAccount);
+
+//                    System.out.println(indAccount);
+//
+////                    indAccount.removeMoney(fAmount);
+//                    this.grandTotal -= fAmount;
+////                    account = indAccount;
+//                    System.out.println(account);
+
+//                    result = true;
+//                }else {
+////                    return false;
+//                }
+            }
+        }
+
+        observableGrandTotal.set(this.getGrandTotal());
     }
 
     public boolean payBill(String accountName, String billName, float amount){
@@ -356,6 +478,7 @@ public class Client implements User {
             e.printStackTrace();
         }
 
+        observableGrandTotal.set(this.getGrandTotal());
         return result;
     }
 
@@ -464,6 +587,7 @@ public class Client implements User {
                     try {
                         stmt.executeUpdate(query);
                         stmt.executeUpdate(transactionQuery);
+                        observableGrandTotal.set(this.getGrandTotal());
                     }catch (SQLException e){
                         e.printStackTrace();
                     }

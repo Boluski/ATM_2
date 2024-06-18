@@ -4,25 +4,25 @@
 
 package com.example.atm_2;
 
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.scene.control.Dialog;
 
 import java.io.IOException;
 
 public class ClientController {
 
-    @FXML // fx:id="accountToggle"
-    private ToggleGroup accountToggle; // Value injected by FXMLLoader
+    @FXML
+    private ListView<String> accountListView;
+
+//    @FXML // fx:id="accountToggle"
+//    private ToggleGroup accountToggle; // Value injected by FXMLLoader
 
     @FXML // fx:id="amountLabel"
     private Label amountLabel; // Value injected by FXMLLoader
@@ -36,8 +36,8 @@ public class ClientController {
     @FXML // fx:id="billButton"
     private Button billButton; // Value injected by FXMLLoader
 
-    @FXML // fx:id="checkingRadio"
-    private RadioButton checkingRadio; // Value injected by FXMLLoader
+//    @FXML // fx:id="checkingRadio"
+//    private RadioButton checkingRadio; // Value injected by FXMLLoader
 
     @FXML // fx:id="createButton"
     private Button createButton; // Value injected by FXMLLoader
@@ -57,8 +57,8 @@ public class ClientController {
     @FXML // fx:id="phoneLabel"
     private Label phoneLabel; // Value injected by FXMLLoader
 
-    @FXML // fx:id="savingsRadio"
-    private RadioButton savingsRadio; // Value injected by FXMLLoader
+//    @FXML // fx:id="savingsRadio"
+//    private RadioButton savingsRadio; // Value injected by FXMLLoader
 
     @FXML // fx:id="tenButton"
     private Button tenButton; // Value injected by FXMLLoader
@@ -77,6 +77,10 @@ public class ClientController {
 
     Client currentUser;
     FXMLLoader root;
+    float totalAmount = 0;
+    float maxAmount = 1000;
+    private Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
+    private Alert errorAlert = new Alert(Alert.AlertType.ERROR);
 
     public void initialize(){
 
@@ -89,7 +93,9 @@ public class ClientController {
         emailLabel.setText(currentUser.getEmail());
         phoneLabel.setText(currentUser.getPhoneNumber());
         fullNameLabel.setText(currentUser.getFullName());
-        balanceLabel.setText(currentUser.getGrandTotal());
+        balanceLabel.textProperty().bind(currentUser.observableGrandTotal);
+        accountListView.setItems(currentUser.observableCheckingAndSaving);
+//        accountListView.getItems().addAll(currentUser.getAllCheckingAndSavingsAccounts());
     }
 
     @FXML
@@ -176,18 +182,44 @@ public class ClientController {
 
     @FXML
     void handleLogOutButton(ActionEvent event) {
+        try {
+            root = new FXMLLoader(ATM.class.getResource("Login.fxml"));
+            Scene scene = new Scene(root.load());
 
+            Stage stage = new Stage();
+            stage.setTitle("ATM");
+            stage.setScene(scene);
+            stage.show();
+
+            ((Node)(event.getSource())).getScene().getWindow().hide();
+
+        }catch (IOException e){
+            e.printStackTrace();
+        }
 
     }
 
     @FXML
     void handleTenButton(ActionEvent event) {
+        float testAmount = totalAmount + (float) 10.00;
+        if(testAmount <= maxAmount){
+            totalAmount = testAmount;
+            amountLabel.setText(String.format("$%.2f", totalAmount));
+        }else {
+            tenButton.setDisable(true);
+        }
 
     }
 
     @FXML
     void handleThertyButton(ActionEvent event) {
-
+        float testAmount = totalAmount + (float) 30.00;
+        if(testAmount <= maxAmount){
+            totalAmount = testAmount;
+            amountLabel.setText(String.format("$%.2f", totalAmount));
+        }else {
+            thertyButton.setDisable(true);
+        }
     }
 
     @FXML
@@ -213,11 +245,70 @@ public class ClientController {
 
     @FXML
     void handleTwentyButton(ActionEvent event) {
-
+        float testAmount = totalAmount + (float) 20.00;
+        if(testAmount <= maxAmount){
+            totalAmount = testAmount;
+            amountLabel.setText(String.format("$%.2f", totalAmount));
+        }else {
+            twentyButton.setDisable(true);
+        }
     }
 
     @FXML
     void handleWithdrawButton(ActionEvent event) {
+        ObservableList<String> selectedAccount =  accountListView.getSelectionModel().getSelectedItems();
+
+        if (selectedAccount.isEmpty()){
+            errorAlert.setHeaderText("No Account!");
+            errorAlert.setContentText("In other to make a withdrawal, you must select one of you accounts!");
+            errorAlert.showAndWait();
+
+        }else {
+            String account = selectedAccount.getFirst();
+
+            System.out.println(totalAmount);
+            System.out.println(account);
+
+            if (currentUser.asPaperMoney(totalAmount)){
+                if (currentUser.withdraw(account, totalAmount)){
+                    infoAlert.setHeaderText("Congrats!");
+                    infoAlert.setContentText("Money as been withdrawn!");
+                    infoAlert.showAndWait();
+                }else {
+                    if (currentUser.asLineOfCreditAccount()){
+                        infoAlert.setHeaderText("Line of credit charged");
+                        infoAlert.setContentText("Because you don't have enough money in this account, " +
+                                "Your line of credit will be charged for the rest of the payment!");
+                        infoAlert.showAndWait();
+
+                        currentUser.withdrawAndUseLineOfCredit(account, totalAmount);
+
+                        infoAlert.setHeaderText("Success!");
+                        infoAlert.setContentText("Money as been withdrawn");
+                        infoAlert.showAndWait();
+
+                        totalAmount = 0;
+                        amountLabel.setText("$0.00");
+                        tenButton.setDisable(false);
+                        twentyButton.setDisable(false);
+                        thertyButton.setDisable(false);
+
+
+                    }else {
+                        errorAlert.setHeaderText("Insufficient Amount!");
+                        errorAlert.setContentText("You Don't have enough money in this account!");
+                        errorAlert.showAndWait();
+                    }
+                }
+
+            }else {
+                errorAlert.setHeaderText("Error!");
+                errorAlert.setContentText("Something went wrong, please try again later!");
+                errorAlert.showAndWait();
+            }
+
+        }
+
 
     }
 
