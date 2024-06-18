@@ -44,13 +44,16 @@ public class DepositController {
 
     @FXML
     void handleChange(KeyEvent event) {
+        try {
+            Character c = amountTextField.getText().charAt(0);
+            if (amountTextField.getText().isEmpty() || c.equals('-')){
+                depositButton.setDisable(true);
+            }else {
+                depositButton.setDisable(isAlphabet(amountTextField.getText()));
+            }
+        }catch (Exception e){
 
-        if (amountTextField.getText().isEmpty()){
-            depositButton.setDisable(true);
-        }else {
-            depositButton.setDisable(isAlphabet(amountTextField.getText()));
         }
-
     }
 
     @FXML

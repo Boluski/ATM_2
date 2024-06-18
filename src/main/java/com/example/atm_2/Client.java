@@ -14,6 +14,7 @@ public class Client implements User {
     private int isBlocked;
     private final ArrayList<Account> accounts = new ArrayList<>();
     private final ArrayList<Account> canDepositAccount = new ArrayList<>();
+    private final ArrayList<Checking> allCheckingAccount = new ArrayList<>();
 
     public Client(String code){
         String query =
@@ -51,6 +52,11 @@ public class Client implements User {
 
                 if (!account.getTag().equals("LineOfCredit")){
                     this.canDepositAccount.add(account);
+
+                    if (account.getTag().equals("Checking")){
+                        this.allCheckingAccount.add((Checking) account);
+                    }
+
                 }
 
                 this.accounts.add(account);
@@ -158,6 +164,7 @@ public class Client implements User {
 
         Checking account = new Checking(name, 0);
         this.accounts.add(account);
+        this.allCheckingAccount.add(account);
         this.canDepositAccount.add(account);
 
         System.out.println(account);
@@ -253,6 +260,102 @@ public class Client implements User {
             result.add(account.getSelectableName());
         }
 
+        return result;
+    }
+
+    public ArrayList<String> getAllCheckingAccounts(){
+        ArrayList<String> result = new ArrayList<>();
+
+        for (Checking checking: this.allCheckingAccount){
+            result.add(checking.getName());
+        }
+
+        return result;
+    }
+
+    public ArrayList<String> getAllAccounts(){
+        ArrayList<String> result = new ArrayList<>();
+
+        for (Account account: this.accounts){
+            result.add(account.getSelectableName());
+        }
+
+        return result;
+    }
+
+    public boolean transfer(String from, String to, float amount){
+        DecimalFormat df = new DecimalFormat("#.00");
+        float fAmount = Float.parseFloat(df.format(amount));
+        Checking fromAccount = null;
+        Account toAccount = null;
+        boolean continueTransfer = false;
+
+        boolean result = false;
+
+        for (Checking indChecking: this.allCheckingAccount ){
+            if (indChecking.getName().equals(from)){
+                if (indChecking.getBalance() >= fAmount){
+                    indChecking.removeMoney(fAmount);
+                    fromAccount = indChecking;
+                    continueTransfer = true;
+                    break;
+
+                }else {
+                    return false;
+                }
+
+            }
+        }
+
+        if (continueTransfer){
+            for (Account indAccount: this.accounts ){
+                if (indAccount.getSelectableName().equals(to)){
+                    indAccount.addMoney(fAmount);
+                    toAccount = indAccount;
+
+                    System.out.println(fromAccount);
+                    System.out.println(toAccount);
+
+                    result = true;
+                }
+            }
+        }
+
+
+
+        String fromQuery = String.format(
+                        "update Accounts\n" +
+                        "set balance = %.2f\n" +
+                        "where accountOwner = \"%s\" and accountName = \"%s\"",
+                        fromAccount.getBalance(),this.code, fromAccount.getName());
+
+
+        String toQuery = String.format(
+                        "update Accounts\n" +
+                        "set balance = %.2f\n" +
+                        "where accountOwner = \"%s\" and accountName = \"%s\"",
+                        toAccount.getBalance(),this.code, toAccount.getName());
+
+        String transactionQuery = String.format(
+                "insert into Transaction(client, accountType, amount, transactionType, movedToAccountType, balance)\n" +
+                        "values(\"%s\", 1, %.2f, 3, %x, %.2f)", this.code,  fAmount, toAccount.getDbCode(), fromAccount.getBalance());
+
+        try {
+            Class.forName(CLASS_NAME);
+            Connection con = DriverManager.getConnection(CONNECTION_STRING);
+            Statement stmt = con.createStatement();
+
+            try {
+                stmt.executeUpdate(fromQuery);
+                stmt.executeUpdate(toQuery);
+                stmt.executeUpdate(transactionQuery);
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return result;
     }
 

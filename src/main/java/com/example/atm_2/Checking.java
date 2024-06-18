@@ -1,10 +1,10 @@
 package com.example.atm_2;
 
 public class Checking implements Account{
-    public final String tag = "Checking";
-    public String name;
-    public float balance;
-    public int databaseCode = 1;
+    private final String tag = "Checking";
+    private String name;
+    private float balance;
+    private int databaseCode = 1;
 
     public Checking(String name, float balance){
         this.name = name;
@@ -29,6 +29,11 @@ public class Checking implements Account{
     @Override
     public void addMoney(float amount){
         this.balance += amount;
+    };
+
+    @Override
+    public void removeMoney(float amount){
+        this.balance -= amount;
     };
 
     @Override

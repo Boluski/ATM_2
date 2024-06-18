@@ -1,10 +1,10 @@
 package com.example.atm_2;
 
 public class LineOfCredit implements Account{
-    public final String tag = "LineOfCredit";
-    public String name;
-    public float balance;
-    public int databaseCode = 4;
+    private final String tag = "LineOfCredit";
+    private String name;
+    private float balance;
+    private int databaseCode = 4;
 
     public LineOfCredit(String name, float balance){
         this.name = name;
@@ -33,6 +33,11 @@ public class LineOfCredit implements Account{
 
     @Override
     public void addMoney(float amount){
+        this.balance -= amount;
+    };
+
+    @Override
+    public void removeMoney(float amount){
         this.balance += amount;
     };
 

@@ -1,10 +1,10 @@
 package com.example.atm_2;
 
 public class Mortgage implements Account{
-    public final String tag = "Mortgage";
-    public String name;
-    public float balance;
-    public int databaseCode = 3;
+    private final String tag = "Mortgage";
+    private String name;
+    private float balance;
+    private int databaseCode = 3;
 
     public Mortgage(String name, float balance){
         this.name = name;
@@ -35,6 +35,11 @@ public class Mortgage implements Account{
     @Override
     public void addMoney(float amount){
         this.balance += amount;
+    };
+
+    @Override
+    public void removeMoney(float amount){
+        this.balance -= amount;
     };
 
     @Override
