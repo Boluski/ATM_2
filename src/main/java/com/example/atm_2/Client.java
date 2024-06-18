@@ -283,6 +283,59 @@ public class Client implements User {
         return result;
     }
 
+    public boolean payBill(String accountName, String billName, float amount){
+        DecimalFormat df = new DecimalFormat("#.00");
+        float fAmount = Float.parseFloat(df.format(amount + 1.25));
+        boolean result = false;
+
+        Checking account = null;
+
+        for (Checking indAccount: this.allCheckingAccount){
+            if (indAccount.getName().equals(accountName)){
+                if (indAccount.getBalance() >= fAmount){
+
+                    System.out.println(indAccount);
+
+                    indAccount.removeMoney(fAmount);
+                    account = indAccount;
+                    System.out.println(account);
+
+                    result = true;
+                }else {
+                    return false;
+                }
+            }
+        }
+
+        String query = String.format(
+                        "update Accounts\n" +
+                        "set balance = %.2f\n" +
+                        "where accountOwner = \"%s\" and accountName = \"%s\"",
+                        account.getBalance(), this.code, account.getName());
+
+        String transactionQuery = String.format(
+                        "insert into Transaction(client, accountType, amount, transactionType, balance, billName)\n" +
+                        "values(\"%s\", 1, %.2f, 4, %.2f, \"%s\")", this.code,  fAmount, account.getBalance(), billName);
+
+        try {
+            Class.forName(CLASS_NAME);
+            Connection con = DriverManager.getConnection(CONNECTION_STRING);
+            Statement stmt = con.createStatement();
+
+            try {
+                stmt.executeUpdate(query);
+                stmt.executeUpdate(transactionQuery);
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
     public boolean transfer(String from, String to, float amount){
         DecimalFormat df = new DecimalFormat("#.00");
         float fAmount = Float.parseFloat(df.format(amount));
