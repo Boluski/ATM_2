@@ -49,11 +49,8 @@ public class LoginController {
 
     private Alert errorAlert = new Alert(AlertType.ERROR);
     private Client currentUser;
+    private Admin currentAdmin;
     private int attempts = 0;
-
-    public void initialize() {
-        System.out.println("Rendered");
-    }
 
     @FXML
     void handleLogin(ActionEvent event) {
@@ -78,7 +75,6 @@ public class LoginController {
                             if (attempts < 3){
                                 if(!currentUser.isBlocked()){
                                     if(currentUser.isAuthenticated(userPIN)){
-                                        // TODO Redirect to new page.
                                         System.out.println("User is authenticated");
                                         FXMLLoader root;
                                         try {
@@ -137,6 +133,50 @@ public class LoginController {
 
                     }
 
+                }else {
+                    if (Admin.canConnectToServer()){
+                        if (Admin.isAdmin(userCode)){
+                            System.out.println("We are doing something.");
+                            currentAdmin = new Admin(userCode);
+
+                            if (currentAdmin.isAuthenticated(userPIN)){
+                                System.out.println("User is authenticated");
+                                FXMLLoader root;
+                                try {
+                                    root = new FXMLLoader(ATM.class.getResource("Admin.fxml"));
+                                    Scene scene = new Scene(root.load());
+
+                                    AdminController controller = root.getController();
+                                    controller.setDate(currentAdmin);
+
+                                    Stage stage = new Stage();
+                                    stage.setTitle("ATM - Admin");
+//                                            stage.setUserData(currentUser);
+                                    stage.setScene(scene);
+                                    stage.show();
+
+                                    ((Node)(event.getSource())).getScene().getWindow().hide();
+
+                                }catch (IOException e){
+                                    e.printStackTrace();
+                                }
+
+                            }else {
+                                errorAlert.setHeaderText("Wrong PIN");
+                                errorAlert.setContentText("The PIN you entered is incorrect.");
+                                errorAlert.showAndWait();
+                            }
+
+                        }else {
+                            errorAlert.setHeaderText("Not an admin");
+                            errorAlert.setContentText("This is not an admin account.");
+                            errorAlert.showAndWait();
+                        }
+                    }else {
+                        errorAlert.setHeaderText("Server Error");
+                        errorAlert.setContentText("Sorry we could not connect to the server.");
+                        errorAlert.showAndWait();
+                    }
                 }
             }else {
                 errorAlert.setHeaderText("PIN format");

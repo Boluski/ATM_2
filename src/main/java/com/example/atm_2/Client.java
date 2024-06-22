@@ -21,6 +21,7 @@ public class Client implements User {
 
     public SimpleStringProperty observableGrandTotal = new SimpleStringProperty("$0.00");
     public ObservableList<String> observableCheckingAndSaving = FXCollections.observableArrayList();
+    public ObservableList<String> observableAllAccount = FXCollections.observableArrayList();
 
     private LineOfCredit LOCAccount = null;
 
@@ -97,6 +98,7 @@ public class Client implements User {
                     this.grandTotal += account.getBalance();
                 }
                 this.accounts.add(account);
+                this.observableAllAccount.add(account.getSelectableName());
             }
 
             this.observableGrandTotal.set(this.getGrandTotal());
@@ -207,6 +209,7 @@ public class Client implements User {
 
         Checking account = new Checking(name, 0);
         this.accounts.add(account);
+        this.observableAllAccount.add(account.getSelectableName());
         this.allCheckingAccount.add(account);
         this.canDepositAccount.add(account);
         this.allSavingsAndCheckingAccount.add(account);
@@ -239,6 +242,7 @@ public class Client implements User {
 
         Saving account = new Saving(name, 0);
         this.accounts.add(account);
+        this.observableAllAccount.add(account.getSelectableName());
         this.canDepositAccount.add(account);
         this.allSavingsAndCheckingAccount.add(account);
         observableCheckingAndSaving.add(account.getSelectableName());
@@ -268,6 +272,7 @@ public class Client implements User {
 
         Mortgage account = new Mortgage(name, 0);
         this.accounts.add(account);
+        this.observableAllAccount.add(account.getSelectableName());
         this.canDepositAccount.add(account);
 
         System.out.println(account);
@@ -296,6 +301,7 @@ public class Client implements User {
 
         LineOfCredit account = new LineOfCredit(name, 0);
         this.accounts.add(account);
+        this.observableAllAccount.add(account.getSelectableName());
         this.LOCAccount = account;
 
         System.out.println(account);
@@ -642,6 +648,20 @@ public class Client implements User {
             }
         }
 
+    }
+
+    public void addSavingsBonus(){
+        for (Account indSavings: allSavingsAndCheckingAccount){
+            if (indSavings.getTag().equals("Saving")){
+                float accountBalance = indSavings.getBalance();
+                float interest = (float) 0.01;
+                float newAccountBalance =  accountBalance + (accountBalance * interest);
+                System.out.println(accountBalance);
+                System.out.println(newAccountBalance);
+
+                this.deposit(indSavings.getName(), newAccountBalance);
+            }
+        }
     }
 
     public static boolean canConnectToServer(){
