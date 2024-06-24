@@ -405,8 +405,8 @@ public class Client implements User {
                 "set balance = %.2f", this.paperMoney);
 
         String transactionQuery = String.format(
-                        "insert into Transaction(client, accountType, amount, transactionType, balance)\n" +
-                        "values(\"%s\", %x, %.2f, 2, %.2f)", this.code, account.getDbCode(), fAmount, account.getBalance());
+                        "insert into Transaction_2(client, accountName, accountType, amount, transactionType, balance)\n" +
+                        "values(\"%s\", \"%s\", %x, %.2f, 2, %.2f)", this.code, account.getName(), account.getDbCode(), fAmount, account.getBalance());
 
         try {
             Class.forName(CLASS_NAME);
@@ -429,7 +429,7 @@ public class Client implements User {
         return result;
     }
 
-    public boolean withdrawMortgage(String accountName, float amount){
+    public boolean withdrawMortgage(String accountName, float amount, String admin){
         DecimalFormat df = new DecimalFormat("#.00");
         float fAmount = Float.parseFloat(df.format(amount));
         boolean result = false;
@@ -455,9 +455,9 @@ public class Client implements User {
                         "where accountOwner = \"%s\" and accountName = \"%s\"",
                 account.getBalance(), this.code, account.getName());
 
-//        String transactionQuery = String.format(
-//                "insert into Transaction(client, accountType, amount, transactionType, balance)\n" +
-//                        "values(\"%s\", %x, %.2f, 2, %.2f)", this.code, account.getDbCode(), fAmount, account.getBalance());
+        String transactionQuery = String.format(
+                "insert into Transaction_2(client, admin, accountName, accountType, amount, transactionType, balance)\n" +
+                        "values(\"%s\", \"%s\", \"%s\", %x, %.2f, 2, %.2f)", this.code, admin, account.getName(), account.getDbCode(), fAmount, account.getBalance());
 
         try {
             Class.forName(CLASS_NAME);
@@ -466,7 +466,7 @@ public class Client implements User {
 
             try {
                 stmt.executeUpdate(query);
-//                stmt.executeUpdate(transactionQuery);
+                stmt.executeUpdate(transactionQuery);
             }catch (SQLException e){
                 e.printStackTrace();
             }
@@ -521,8 +521,8 @@ public class Client implements User {
                 "set balance = %.2f", this.paperMoney);
 
         String transactionQuery = String.format(
-                        "insert into Transaction(client, accountType, amount, LOCAmount, transactionType, balance)\n" +
-                        "values(\"%s\", %x, %.2f, %.2f, 2, %.2f)", this.code, account.getDbCode(), accountFunds, fAmount, account.getBalance());
+                        "insert into Transaction_2(client, accountName, accountType, amount, LOCAmount, transactionType, balance)\n" +
+                        "values(\"%s\", \"%s\", %x, %.2f, %.2f, 2, %.2f)", this.code, account.getName(), account.getDbCode(), accountFunds, fAmount, account.getBalance());
 
         try {
             Class.forName(CLASS_NAME);
@@ -544,7 +544,7 @@ public class Client implements User {
         observableGrandTotal.set(this.getGrandTotal());
     }
 
-    public void withdrawMortgageAndUseLineOfCredit(String accountName, float amount){
+    public void withdrawMortgageAndUseLineOfCredit(String accountName, float amount, String admin){
         DecimalFormat df = new DecimalFormat("#.00");
         float fAmount = Float.parseFloat(df.format(amount));
         float accountFunds = 0;
@@ -582,9 +582,9 @@ public class Client implements User {
                 this.LOCAccount.getBalance(), this.code, this.LOCAccount.getName());
 
 
-//        String transactionQuery = String.format(
-//                "insert into Transaction(client, accountType, amount, LOCAmount, transactionType, balance)\n" +
-//                        "values(\"%s\", %x, %.2f, %.2f, 2, %.2f)", this.code, account.getDbCode(), accountFunds, fAmount, account.getBalance());
+        String transactionQuery = String.format(
+                "insert into Transaction_2(client, admin, accountName, accountType, amount, LOCAmount, transactionType, balance)\n" +
+                        "values(\"%s\", \"%s\", \"%s\", %x, %.2f, %.2f, 2, %.2f)", this.code, admin, account.getName(), account.getDbCode(), accountFunds, fAmount, account.getBalance());
 
         try {
             Class.forName(CLASS_NAME);
@@ -594,7 +594,7 @@ public class Client implements User {
             try {
                 stmt.executeUpdate(query);
                 stmt.executeUpdate(LOCQuery);
-//                stmt.executeUpdate(transactionQuery);
+                stmt.executeUpdate(transactionQuery);
             }catch (SQLException e){
                 e.printStackTrace();
             }
@@ -637,8 +637,8 @@ public class Client implements User {
                         account.getBalance(), this.code, account.getName());
 
         String transactionQuery = String.format(
-                        "insert into Transaction(client, accountType, amount, transactionType, balance, billName)\n" +
-                        "values(\"%s\", 1, %.2f, 4, %.2f, \"%s\")", this.code,  fAmount, account.getBalance(), billName);
+                        "insert into Transaction_2(client, accountName, accountType, amount, transactionType, balance, billName)\n" +
+                        "values(\"%s\", \"%s\", 1, %.2f, 4, %.2f, \"%s\")", this.code, account.getName(), fAmount, account.getBalance(), billName);
 
         try {
             Class.forName(CLASS_NAME);
@@ -714,8 +714,8 @@ public class Client implements User {
                         toAccount.getBalance(),this.code, toAccount.getName());
 
         String transactionQuery = String.format(
-                "insert into Transaction(client, accountType, amount, transactionType, movedToAccountType, balance)\n" +
-                        "values(\"%s\", 1, %.2f, 3, %x, %.2f)", this.code,  fAmount, toAccount.getDbCode(), fromAccount.getBalance());
+                "insert into Transaction_2(client, accountName, accountType, amount, transactionType, movedToAccountType, balance)\n" +
+                        "values(\"%s\", \"%s\", 1, %.2f, 3, %x, %.2f)", this.code, toAccount.getName(), fAmount, toAccount.getDbCode(), fromAccount.getBalance());
 
         try {
             Class.forName(CLASS_NAME);
@@ -754,8 +754,8 @@ public class Client implements User {
 
 
                 String transactionQuery = String.format(
-                        "insert into Transaction(client, accountType, amount, transactionType, balance)\n" +
-                        "values(\"%s\", %x, %.2f, 1, %.2f)", this.code, account.getDbCode(), fAmount, account.getBalance());
+                        "insert into Transaction_2(client, accountName, accountType, amount, transactionType, balance)\n" +
+                        "values(\"%s\", \"%s\", %x, %.2f, 1, %.2f)", this.code, account.getName(), account.getDbCode(), fAmount, account.getBalance());
 
                 try {
                     Class.forName(CLASS_NAME);
@@ -780,7 +780,51 @@ public class Client implements User {
 
     }
 
-    public void addSavingsBonus(){
+    public void deposit(String accountName, float amount, String admin){
+        DecimalFormat df = new DecimalFormat("#.00");
+        float fAmount = Float.parseFloat(df.format(amount));
+
+        for (Account account: this.canDepositAccount){
+            if (account.getSelectableName().equals(accountName)){
+                account.addMoney(fAmount);
+                this.grandTotal += fAmount;
+                System.out.println(account);
+
+                String query = String.format(
+                        "update Accounts\n" +
+                                "set balance = %.2f\n" +
+                                "where accountOwner = \"%s\" and accountName = \"%s\"",
+                        account.getBalance(),this.code, account.getName());
+
+
+                String transactionQuery = String.format(
+                        "insert into Transaction_2(client, admin, accountName, accountType, amount, transactionType, balance)\n" +
+                                "values(\"%s\", \"%s\", \"%s\", %x, %.2f, 1, %.2f)", this.code, admin, account.getName(), account.getDbCode(), fAmount, account.getBalance());
+
+                try {
+                    Class.forName(CLASS_NAME);
+                    Connection con = DriverManager.getConnection(CONNECTION_STRING);
+                    Statement stmt = con.createStatement();
+
+                    try {
+                        stmt.executeUpdate(query);
+                        stmt.executeUpdate(transactionQuery);
+                        observableGrandTotal.set(this.getGrandTotal());
+                    }catch (SQLException e){
+                        e.printStackTrace();
+                    }
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
+                break;
+            }
+        }
+
+    }
+
+    public void addSavingsBonus(String admin){
         for (Account indSavings: allSavingsAndCheckingAccount){
             if (indSavings.getTag().equals("Saving")){
                 float accountBalance = indSavings.getBalance();
@@ -789,12 +833,12 @@ public class Client implements User {
                 System.out.println(accountBalance);
                 System.out.println(bonus);
 
-                this.deposit(indSavings.getSelectableName(), bonus);
+                this.deposit(indSavings.getSelectableName(), bonus, admin);
             }
         }
     }
 
-    public void addLOCInterest(){
+    public void addLOCInterest(String admin){
         if (this.asLineOfCreditAccount()){
             float accountBalance = Math.abs(this.LOCAccount.getBalance());
             float interest = (float) 0.05;
@@ -809,6 +853,11 @@ public class Client implements User {
                             "where accountOwner = \"%s\" and accountName = \"%s\"",
                     this.LOCAccount.getBalance(), this.code, this.LOCAccount.getName());
 
+            String transactionQuery = String.format(
+                            "insert into Transaction_2(client, admin, accountName, accountType, amount, transactionType, balance)\n" +
+                            "values(\"%s\", \"%s\", \"%s\", %x, %.2f, 4, %.2f)", this.code, admin, this.LOCAccount.getName(), this.LOCAccount.getDbCode(), total, this.LOCAccount.getBalance());
+
+
             try {
                 Class.forName(CLASS_NAME);
                 Connection con = DriverManager.getConnection(CONNECTION_STRING);
@@ -816,6 +865,7 @@ public class Client implements User {
 
                 try {
                     stmt.executeUpdate(LOCQuery);
+                    stmt.executeUpdate(transactionQuery);
                 }catch (SQLException e){
                     e.printStackTrace();
                 }

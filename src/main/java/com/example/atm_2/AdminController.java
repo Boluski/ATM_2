@@ -154,7 +154,7 @@ public class AdminController {
 
     @FXML
     void handleLOC(ActionEvent event) {
-        currentAdmin.addInterest();
+        currentAdmin.addInterest(currentAdmin.getCode());
     }
 
     @FXML
@@ -200,7 +200,7 @@ public class AdminController {
             root = new FXMLLoader(ATM.class.getResource("Withdraw.fxml"));
             Scene scene = new Scene(root.load(), 400, 150);
             WithdrawController controller = root.getController();
-            controller.setDate(activeClient, mortgageAccount);
+            controller.setDate(activeClient, mortgageAccount, currentAdmin.getCode());
 
             Stage dialog = new Stage();
             dialog.initModality(Modality.WINDOW_MODAL);

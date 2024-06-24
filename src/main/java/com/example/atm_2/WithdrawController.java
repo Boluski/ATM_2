@@ -29,11 +29,12 @@ public class WithdrawController {
     }
     Client currentUser;
     String mortgageAccount;
+    String admin;
 
-    public void setDate(Client user, String accountName){
+    public void setDate(Client user, String accountName, String admin){
         currentUser = user;
         this.mortgageAccount = accountName;
-
+        this.admin = admin;
 
     }
 
@@ -57,7 +58,7 @@ public class WithdrawController {
 
         if (amount != 0){
 
-            if (currentUser.withdrawMortgage(mortgageAccount, amount)){
+            if (currentUser.withdrawMortgage(mortgageAccount, amount, admin)){
                 infoAlert.setHeaderText("Congrats!");
                 infoAlert.setContentText("Money as been withdrawn!");
                 infoAlert.showAndWait();
@@ -69,7 +70,7 @@ public class WithdrawController {
                                 "Your line of credit will be charged for the rest of the payment!");
                         infoAlert.showAndWait();
 
-                        currentUser.withdrawMortgageAndUseLineOfCredit(mortgageAccount, amount);
+                        currentUser.withdrawMortgageAndUseLineOfCredit(mortgageAccount, amount, admin);
 
                         infoAlert.setHeaderText("Success!");
                         infoAlert.setContentText("Money as been withdrawn");

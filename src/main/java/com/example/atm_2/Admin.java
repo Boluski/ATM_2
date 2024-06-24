@@ -4,7 +4,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.sql.*;
-import java.time.chrono.MinguoDate;
 import java.util.ArrayList;
 
 public class Admin implements User{
@@ -100,6 +99,10 @@ public class Admin implements User{
         }
     }
 
+    public String getCode(){
+        return this.code;
+    }
+
     public boolean isAuthenticated(String PIN){
         return this.PIN.equals(PIN);
     }
@@ -132,7 +135,7 @@ public class Admin implements User{
 
     public void addBonusToAllSavings(){
         for (Client indClient: this.allClients){
-            indClient.addSavingsBonus();
+            indClient.addSavingsBonus(this.code);
         }
     }
 
@@ -141,9 +144,9 @@ public class Admin implements User{
         this.Clients.add(newClient.toString());
     }
 
-    public void addInterest(){
+    public void addInterest(String admin){
         for (Client indClient: this.allClients){
-            indClient.addLOCInterest();
+            indClient.addLOCInterest(admin);
         }
     }
 
