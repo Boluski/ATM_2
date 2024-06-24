@@ -10,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.beans.property.SimpleBooleanProperty;
 
@@ -83,7 +84,23 @@ public class AdminController {
 
     @FXML
     void handleAddAccount(ActionEvent event) {
+        Client currentClient = currentAdmin.getClient(clientsComboBox.getSelectionModel().getSelectedItem());
+        try {
+            root = new FXMLLoader(ATM.class.getResource("CreateAccountAdmin.fxml"));
+            Scene scene = new Scene(root.load(), 400, 150);
+            CreateAccountAdminController controller = root.getController();
+            controller.setData(currentClient, accountsComboBox);
 
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.WINDOW_MODAL);
+            dialog.initOwner(((Node)(event.getSource())).getScene().getWindow());
+            dialog.setTitle("Create Account");
+
+            dialog.setScene(scene);
+            dialog.showAndWait();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -93,10 +110,16 @@ public class AdminController {
 
     @FXML
     void handleClientChange(ActionEvent event) {
+        accountsComboBox.setDisable(false);
         activeClient = currentAdmin.getClient(clientsComboBox.getSelectionModel().getSelectedItem());
 
         accountsComboBox.setItems(activeClient.observableAllAccount);
-        accountsComboBox.setValue(activeClient.observableAllAccount.getFirst());
+        try {
+            accountsComboBox.setValue(activeClient.observableAllAccount.getFirst());
+        }catch (Exception e){
+            accountsComboBox.setDisable(true);
+        }
+
         checkBox.set(activeClient.isBlocked());
     }
 
@@ -108,12 +131,28 @@ public class AdminController {
 
     @FXML
     void handleCreateClient(ActionEvent event) {
+        try {
+            root = new FXMLLoader(ATM.class.getResource("CreateClient.fxml"));
+            Scene scene = new Scene(root.load(), 400, 300);
+            CreateClientController controller = root.getController();
+            controller.setData(currentAdmin);
+
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.WINDOW_MODAL);
+            dialog.initOwner(((Node)(event.getSource())).getScene().getWindow());
+            dialog.setTitle("Create Client");
+
+            dialog.setScene(scene);
+            dialog.showAndWait();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
 
     }
 
     @FXML
     void handleLOC(ActionEvent event) {
-
+        currentAdmin.addInterest();
     }
 
     @FXML

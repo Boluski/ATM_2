@@ -449,6 +449,12 @@ public class Client implements User {
                         "where accountOwner = \"%s\" and accountName = \"%s\"",
                 account.getBalance(), this.code, account.getName());
 
+        String LOCQuery = String.format(
+                "update Accounts\n" +
+                        "set balance = %.2f\n" +
+                        "where accountOwner = \"%s\" and accountName = \"%s\"",
+                this.LOCAccount.getBalance(), this.code, this.LOCAccount.getName());
+
         String paperQuery = String.format("update Cash\n" +
                 "set balance = %.2f", this.paperMoney);
 
@@ -463,6 +469,7 @@ public class Client implements User {
 
             try {
                 stmt.executeUpdate(query);
+                stmt.executeUpdate(LOCQuery);
                 stmt.executeUpdate(paperQuery);
                 stmt.executeUpdate(transactionQuery);
             }catch (SQLException e){
@@ -655,12 +662,44 @@ public class Client implements User {
             if (indSavings.getTag().equals("Saving")){
                 float accountBalance = indSavings.getBalance();
                 float interest = (float) 0.01;
-                float newAccountBalance =  accountBalance + (accountBalance * interest);
+                float bonus = accountBalance * interest;
                 System.out.println(accountBalance);
-                System.out.println(newAccountBalance);
+                System.out.println(bonus);
 
-                this.deposit(indSavings.getName(), newAccountBalance);
+                this.deposit(indSavings.getSelectableName(), bonus);
             }
+        }
+    }
+
+    public void addLOCInterest(){
+        if (this.asLineOfCreditAccount()){
+            float accountBalance = Math.abs(this.LOCAccount.getBalance());
+            float interest = (float) 0.05;
+            float total = accountBalance * interest;
+            System.out.println(this.LOCAccount.getBalance());
+            this.LOCAccount.removeMoney(total);
+            System.out.println(this.LOCAccount.getBalance());
+
+            String LOCQuery = String.format(
+                    "update Accounts\n" +
+                            "set balance = %.2f\n" +
+                            "where accountOwner = \"%s\" and accountName = \"%s\"",
+                    this.LOCAccount.getBalance(), this.code, this.LOCAccount.getName());
+
+            try {
+                Class.forName(CLASS_NAME);
+                Connection con = DriverManager.getConnection(CONNECTION_STRING);
+                Statement stmt = con.createStatement();
+
+                try {
+                    stmt.executeUpdate(LOCQuery);
+                }catch (SQLException e){
+                    e.printStackTrace();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
         }
     }
 
@@ -674,6 +713,30 @@ public class Client implements User {
         }
 
         return true;
+    }
+
+    public static Client createClient(String code, String PIN, String fullName, String phoneNumber, String email){
+        String query = String.format(
+                "insert into Clients(clientCode, fullName, phone, email, PIN, blocked)\n" +
+                        "values(\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", 0);",
+                code, fullName, phoneNumber, email, PIN);
+
+        try {
+            Class.forName(CLASS_NAME);
+            Connection con = DriverManager.getConnection(CONNECTION_STRING);
+            Statement stmt = con.createStatement();
+
+            try {
+                stmt.executeUpdate(query);
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return new Client(code);
     }
 
     public static boolean isClient(String code){

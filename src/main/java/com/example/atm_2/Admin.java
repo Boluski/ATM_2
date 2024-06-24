@@ -136,6 +136,17 @@ public class Admin implements User{
         }
     }
 
+    public void addClient(Client newClient){
+        this.allClients.add(newClient);
+        this.Clients.add(newClient.toString());
+    }
+
+    public void addInterest(){
+        for (Client indClient: this.allClients){
+            indClient.addLOCInterest();
+        }
+    }
+
     public Client getClient(){
         return this.allClients.getFirst();
     }
