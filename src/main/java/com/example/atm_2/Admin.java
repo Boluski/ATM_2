@@ -23,7 +23,7 @@ public class Admin implements User{
                 String.format("select * from Admins where Admins.adminCode = \"%s\" ", code);
         String clientQuery = "select clientCode from Clients";
         String paperMoneyQuery =
-                String.format("select * from Cash");
+                String.format("select balance from Cash where cashID = 1");
 
         try {
             Class.forName(CLASS_NAME);
@@ -115,7 +115,7 @@ public class Admin implements User{
         this.paperMoney = money;
 
         String paperQuery = String.format("update Cash\n" +
-                "set balance = %.2f", this.paperMoney);
+                "set balance = %.2f where cashID = 1", this.paperMoney);
 
         try {
             Class.forName(CLASS_NAME);

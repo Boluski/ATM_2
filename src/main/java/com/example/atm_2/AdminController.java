@@ -74,6 +74,7 @@ public class AdminController {
 
         withdrawButton.setDisable(!activeClient.isMortgageAccount(activeClient.observableAllAccount.getFirst()));
 
+
         checkBox = new SimpleBooleanProperty(activeClient.isBlocked());
         blockClientCheckBox.selectedProperty().bindBidirectional(checkBox);
 
@@ -114,6 +115,7 @@ public class AdminController {
     @FXML
     void handleClientChange(ActionEvent event) {
         accountsComboBox.setDisable(false);
+        showTransactionButton.setDisable(false);
         activeClient = currentAdmin.getClient(clientsComboBox.getSelectionModel().getSelectedItem());
 
         accountsComboBox.setItems(activeClient.observableAllAccount);
@@ -121,6 +123,7 @@ public class AdminController {
             accountsComboBox.setValue(activeClient.observableAllAccount.getFirst());
         }catch (Exception e){
             accountsComboBox.setDisable(true);
+            showTransactionButton.setDisable(true);
         }
 
         checkBox.set(activeClient.isBlocked());

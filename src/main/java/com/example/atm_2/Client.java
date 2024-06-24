@@ -36,7 +36,7 @@ public class Client implements User {
         String accountQuery =
                 String.format("select accountType, accountName, balance from Accounts where accountOwner=\"%s\"", code);
         String paperMoneyQuery =
-                String.format("select * from Cash");
+                String.format("select balance from Cash where cashID = 1");
 
         try {
             Class.forName(CLASS_NAME);
@@ -402,10 +402,10 @@ public class Client implements User {
                         account.getBalance(), this.code, account.getName());
 
         String paperQuery = String.format("update Cash\n" +
-                "set balance = %.2f", this.paperMoney);
+                "set balance = %.2f where cashID = 1", this.paperMoney);
 
         String transactionQuery = String.format(
-                        "insert into Transaction_4(client, accountName, accountType, amount, transactionType, balance)\n" +
+                        "insert into Transactions(client, accountName, accountType, amount, transactionType, balance)\n" +
                         "values(\"%s\", \"%s\", %x, %.2f, 2, %.2f)", this.code, account.getName(), account.getDbCode(), fAmount, account.getBalance());
 
         try {
@@ -456,7 +456,7 @@ public class Client implements User {
                 account.getBalance(), this.code, account.getName());
 
         String transactionQuery = String.format(
-                "insert into Transaction_4(client, admin, accountName, accountType, amount, transactionType, balance)\n" +
+                "insert into Transactions(client, admin, accountName, accountType, amount, transactionType, balance)\n" +
                         "values(\"%s\", \"%s\", \"%s\", %x, %.2f, 2, %.2f)", this.code, admin, account.getName(), account.getDbCode(), fAmount, account.getBalance());
 
         try {
@@ -518,10 +518,10 @@ public class Client implements User {
                 this.LOCAccount.getBalance(), this.code, this.LOCAccount.getName());
 
         String paperQuery = String.format("update Cash\n" +
-                "set balance = %.2f", this.paperMoney);
+                "set balance = %.2f where cashID = 1", this.paperMoney);
 
         String transactionQuery = String.format(
-                        "insert into Transaction_4(client, accountName, accountType, amount, LOCAmount, transactionType, balance)\n" +
+                        "insert into Transactions(client, accountName, accountType, amount, LOCAmount, transactionType, balance)\n" +
                         "values(\"%s\", \"%s\", %x, %.2f, %.2f, 2, %.2f)", this.code, account.getName(), account.getDbCode(), accountFunds, fAmount, account.getBalance());
 
         try {
@@ -583,7 +583,7 @@ public class Client implements User {
 
 
         String transactionQuery = String.format(
-                "insert into Transaction_4(client, admin, accountName, accountType, amount, LOCAmount, transactionType, balance)\n" +
+                "insert into Transactions(client, admin, accountName, accountType, amount, LOCAmount, transactionType, balance)\n" +
                         "values(\"%s\", \"%s\", \"%s\", %x, %.2f, %.2f, 2, %.2f)", this.code, admin, account.getName(), account.getDbCode(), accountFunds, fAmount, account.getBalance());
 
         try {
@@ -637,7 +637,7 @@ public class Client implements User {
                         account.getBalance(), this.code, account.getName());
 
         String transactionQuery = String.format(
-                        "insert into Transaction_4(client, accountName, accountType, amount, transactionType, balance, billName)\n" +
+                        "insert into Transactions(client, accountName, accountType, amount, transactionType, balance, billName)\n" +
                         "values(\"%s\", \"%s\", 1, %.2f, 4, %.2f, \"%s\")", this.code, account.getName(), fAmount, account.getBalance(), billName);
 
         try {
@@ -714,7 +714,7 @@ public class Client implements User {
                         toAccount.getBalance(),this.code, toAccount.getName());
 
         String transactionQuery = String.format(
-                "insert into Transaction_4(client, accountName, accountType, amount, transactionType, movedToAccountType, movedToAccountName, balance)\n" +
+                "insert into Transactions(client, accountName, accountType, amount, transactionType, movedToAccountType, movedToAccountName, balance)\n" +
                         "values(\"%s\", \"%s\", 1, %.2f, 3, %x, \"%s\", %.2f)", this.code, fromAccount.getName(), fAmount, toAccount.getDbCode(), toAccount.getName(), fromAccount.getBalance());
 
         try {
@@ -754,7 +754,7 @@ public class Client implements User {
 
 
                 String transactionQuery = String.format(
-                        "insert into Transaction_4(client, accountName, accountType, amount, transactionType, balance)\n" +
+                        "insert into Transactions(client, accountName, accountType, amount, transactionType, balance)\n" +
                         "values(\"%s\", \"%s\", %x, %.2f, 1, %.2f)", this.code, account.getName(), account.getDbCode(), fAmount, account.getBalance());
 
                 try {
@@ -798,7 +798,7 @@ public class Client implements User {
 
 
                 String transactionQuery = String.format(
-                        "insert into Transaction_4(client, admin, accountName, accountType, amount, transactionType, balance)\n" +
+                        "insert into Transactions(client, admin, accountName, accountType, amount, transactionType, balance)\n" +
                                 "values(\"%s\", \"%s\", \"%s\", %x, %.2f, 1, %.2f)", this.code, admin, account.getName(), account.getDbCode(), fAmount, account.getBalance());
 
                 try {
@@ -854,7 +854,7 @@ public class Client implements User {
                     this.LOCAccount.getBalance(), this.code, this.LOCAccount.getName());
 
             String transactionQuery = String.format(
-                            "insert into Transaction_4(client, admin, accountName, accountType, amount, transactionType, balance)\n" +
+                            "insert into Transactions(client, admin, accountName, accountType, amount, transactionType, balance)\n" +
                             "values(\"%s\", \"%s\", \"%s\", %x, %.2f, 4, %.2f)", this.code, admin, this.LOCAccount.getName(), this.LOCAccount.getDbCode(), total, this.LOCAccount.getBalance());
 
 
@@ -881,10 +881,9 @@ public class Client implements User {
         ArrayList<Transaction> transactions = new ArrayList<>();
         for (Account indAccount:this.accounts){
             if (indAccount.getSelectableName().equals(accountName)){
-                query = String.format("select transactionID, LOCAmount, admin, amount, movedToAccountName, balance, billName, transactionDate from Transaction_4 where client=\"%s\" and accountName=\"%s\"", code, indAccount.getName());
+                query = String.format("select transactionID, LOCAmount, admin, amount, movedToAccountName, balance, billName, transactionDate from Transactions where client=\"%s\" and accountName=\"%s\"", code, indAccount.getName());
             }
         }
-
 
         try {
             Class.forName(CLASS_NAME);
@@ -895,13 +894,44 @@ public class Client implements User {
             ResultSet rs = stmt.executeQuery(query);
 
             while (rs.next()){
+                String LOC = String.format("$%s", rs.getString(2));
+                String amount = String.format("$%s", rs.getString(4));
+                String balance = String.format("$%s", rs.getString(6));
+
+                if (LOC.equals("$null")){
+                    LOC = "";
+                }else {
+                    Character c = LOC.charAt(1);
+                    if (c.equals('-')){
+                        LOC = LOC.replace("$-", "-$");
+                    }
+                }
+
+                if (amount.equals("$null")){
+                    amount = "";
+                }else {
+                    Character c = amount.charAt(1);
+                    if (c.equals('-')){
+                        amount = amount.replace("$-", "-$");
+                    }
+                }
+
+                if (balance.equals("$null")){
+                    balance = "";
+                }else {
+                    Character c = balance.charAt(1);
+                    if (c.equals('-')){
+                        balance = balance.replace("$-", "-$");
+                    }
+                }
+
                 transactions.add(new Transaction(
                         rs.getString(1),
-                        rs.getString(2),
+                        LOC,
                         rs.getString(3),
-                        rs.getString(4),
+                        amount,
                         rs.getString(5),
-                        rs.getString(6),
+                        balance,
                         rs.getString(7),
                         rs.getString(8)));
             }
