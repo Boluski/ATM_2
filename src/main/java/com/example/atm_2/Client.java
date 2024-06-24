@@ -187,6 +187,18 @@ public class Client implements User {
         return amount <= this.paperMoney;
     }
 
+    public boolean isMortgageAccount(String accountName){
+        for (Account indAccount: this.accounts){
+            if (indAccount.getSelectableName().equals(accountName)){
+                if (indAccount.getTag().equals("Mortgage")){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public void addCheckingAccount(String name){
         String query = String.format(
                         "insert into Accounts(accountOwner, AccountType, accountName, balance)\n" +
@@ -417,6 +429,56 @@ public class Client implements User {
         return result;
     }
 
+    public boolean withdrawMortgage(String accountName, float amount){
+        DecimalFormat df = new DecimalFormat("#.00");
+        float fAmount = Float.parseFloat(df.format(amount));
+        boolean result = false;
+
+        Account account = null;
+
+        for (Account indAccount: this.accounts){
+            if (indAccount.getSelectableName().equals(accountName)){
+                if (indAccount.getBalance() >= fAmount){
+                    indAccount.removeMoney(fAmount);
+                    this.grandTotal -= fAmount;
+                    account = indAccount;
+                    result = true;
+                }else {
+                    return false;
+                }
+            }
+        }
+
+        String query = String.format(
+                "update Accounts\n" +
+                        "set balance = %.2f\n" +
+                        "where accountOwner = \"%s\" and accountName = \"%s\"",
+                account.getBalance(), this.code, account.getName());
+
+//        String transactionQuery = String.format(
+//                "insert into Transaction(client, accountType, amount, transactionType, balance)\n" +
+//                        "values(\"%s\", %x, %.2f, 2, %.2f)", this.code, account.getDbCode(), fAmount, account.getBalance());
+
+        try {
+            Class.forName(CLASS_NAME);
+            Connection con = DriverManager.getConnection(CONNECTION_STRING);
+            Statement stmt = con.createStatement();
+
+            try {
+                stmt.executeUpdate(query);
+//                stmt.executeUpdate(transactionQuery);
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        observableGrandTotal.set(this.getGrandTotal());
+        return result;
+    }
+
     public void withdrawAndUseLineOfCredit(String accountName, float amount){
         DecimalFormat df = new DecimalFormat("#.00");
         float fAmount = Float.parseFloat(df.format(amount));
@@ -472,6 +534,67 @@ public class Client implements User {
                 stmt.executeUpdate(LOCQuery);
                 stmt.executeUpdate(paperQuery);
                 stmt.executeUpdate(transactionQuery);
+            }catch (SQLException e){
+                e.printStackTrace();
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        observableGrandTotal.set(this.getGrandTotal());
+    }
+
+    public void withdrawMortgageAndUseLineOfCredit(String accountName, float amount){
+        DecimalFormat df = new DecimalFormat("#.00");
+        float fAmount = Float.parseFloat(df.format(amount));
+        float accountFunds = 0;
+
+        Account account = null;
+
+        for (Account indAccount: this.accounts){
+            if (indAccount.getSelectableName().equals(accountName)){
+                accountFunds = indAccount.getBalance();
+
+                fAmount -= accountFunds;
+
+                indAccount.removeMoney(accountFunds);
+                this.grandTotal -= accountFunds;
+
+                this.LOCAccount.removeMoney(fAmount);
+                this.grandTotal -= fAmount;
+
+                account = indAccount;
+
+            }
+        }
+
+
+        String query = String.format(
+                "update Accounts\n" +
+                        "set balance = %.2f\n" +
+                        "where accountOwner = \"%s\" and accountName = \"%s\"",
+                account.getBalance(), this.code, account.getName());
+
+        String LOCQuery = String.format(
+                "update Accounts\n" +
+                        "set balance = %.2f\n" +
+                        "where accountOwner = \"%s\" and accountName = \"%s\"",
+                this.LOCAccount.getBalance(), this.code, this.LOCAccount.getName());
+
+
+//        String transactionQuery = String.format(
+//                "insert into Transaction(client, accountType, amount, LOCAmount, transactionType, balance)\n" +
+//                        "values(\"%s\", %x, %.2f, %.2f, 2, %.2f)", this.code, account.getDbCode(), accountFunds, fAmount, account.getBalance());
+
+        try {
+            Class.forName(CLASS_NAME);
+            Connection con = DriverManager.getConnection(CONNECTION_STRING);
+            Statement stmt = con.createStatement();
+
+            try {
+                stmt.executeUpdate(query);
+                stmt.executeUpdate(LOCQuery);
+//                stmt.executeUpdate(transactionQuery);
             }catch (SQLException e){
                 e.printStackTrace();
             }

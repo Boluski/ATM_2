@@ -71,6 +71,8 @@ public class AdminController {
         accountsComboBox.setItems(activeClient.observableAllAccount);
         accountsComboBox.setValue(activeClient.observableAllAccount.getFirst());
 
+        withdrawButton.setDisable(!activeClient.isMortgageAccount(activeClient.observableAllAccount.getFirst()));
+
         checkBox = new SimpleBooleanProperty(activeClient.isBlocked());
         blockClientCheckBox.selectedProperty().bindBidirectional(checkBox);
 
@@ -79,17 +81,17 @@ public class AdminController {
 
     @FXML
     void handleAccountSelected(ActionEvent event) {
-
+        String selectedAccount = accountsComboBox.getSelectionModel().getSelectedItem();
+        withdrawButton.setDisable(!activeClient.isMortgageAccount(selectedAccount));
     }
 
     @FXML
     void handleAddAccount(ActionEvent event) {
-        Client currentClient = currentAdmin.getClient(clientsComboBox.getSelectionModel().getSelectedItem());
         try {
             root = new FXMLLoader(ATM.class.getResource("CreateAccountAdmin.fxml"));
             Scene scene = new Scene(root.load(), 400, 150);
             CreateAccountAdminController controller = root.getController();
-            controller.setData(currentClient, accountsComboBox);
+            controller.setData(activeClient, accountsComboBox);
 
             Stage dialog = new Stage();
             dialog.initModality(Modality.WINDOW_MODAL);
@@ -193,7 +195,23 @@ public class AdminController {
 
     @FXML
     void handleWithdraw(ActionEvent event) {
+        String mortgageAccount = accountsComboBox.getSelectionModel().getSelectedItem();
+        try {
+            root = new FXMLLoader(ATM.class.getResource("Withdraw.fxml"));
+            Scene scene = new Scene(root.load(), 400, 150);
+            WithdrawController controller = root.getController();
+            controller.setDate(activeClient, mortgageAccount);
 
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.WINDOW_MODAL);
+            dialog.initOwner(((Node)(event.getSource())).getScene().getWindow());
+            dialog.setTitle("Withdraw");
+
+            dialog.setScene(scene);
+            dialog.showAndWait();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
 }
