@@ -62,9 +62,6 @@ public class TransferController {
 
     @FXML
     void handleTransfer(ActionEvent event) {
-        System.out.println(fromCombo.getValue());
-        System.out.println(toCombo.getValue());
-
         String from = fromCombo.getValue();
         String to = toCombo.getValue();
 

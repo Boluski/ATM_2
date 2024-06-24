@@ -16,20 +16,17 @@ public class Client implements User {
     private String PIN;
     private int isBlocked;
     private float grandTotal;
-
     private float paperMoney;
-
     public SimpleStringProperty observableGrandTotal = new SimpleStringProperty("$0.00");
     public ObservableList<String> observableCheckingAndSaving = FXCollections.observableArrayList();
     public ObservableList<String> observableAllAccount = FXCollections.observableArrayList();
-
     private LineOfCredit LOCAccount = null;
-
     private final ArrayList<Account> accounts = new ArrayList<>();
     private final ArrayList<Account> canDepositAccount = new ArrayList<>();
     private final ArrayList<Account> allSavingsAndCheckingAccount = new ArrayList<>();
     private final ArrayList<Checking> allCheckingAccount = new ArrayList<>();
 
+    // Creates a new client instance and grabs all the resources needed from the database.
     public Client(String code){
         String query =
                 String.format("select * from Clients where Clients.clientCode = \"%s\" ", code);
@@ -108,10 +105,12 @@ public class Client implements User {
         }
     }
 
+    // Returns true if the client is blocked.
     public boolean isBlocked(){
         return this.isBlocked == 1;
     }
 
+    // Sets the blocked status of the client.
     public void setAccountAsBlock(boolean status){
         if (status){
             this.isBlocked = 1;
@@ -137,18 +136,22 @@ public class Client implements User {
         }
     }
 
+    // Checks if the PIN given is the same as the client's pin. Returns true if it's the same.
     public boolean isAuthenticated(String PIN){
         return this.PIN.equals(PIN);
     }
 
+    // Returns the client's email address.
     public String getEmail(){
         return this.email;
     }
 
+    // Returns the client's full name
     public String getFullName(){
         return this.fullName;
     }
 
+    // Returns the client's phone number.
     public String getPhoneNumber(){
         return String.format("(%s) %s-%s",
                 this.phoneNumber.substring(0, 3),
@@ -156,6 +159,7 @@ public class Client implements User {
                 this.phoneNumber.substring( 6));
     }
 
+    // Returns true if the client has a checking account.
     public boolean asCheckingAccount(){
         if (this.accounts.isEmpty()) {
             return false;
@@ -170,6 +174,7 @@ public class Client implements User {
         return false;
     }
 
+    // Returns true if the client has a line of credit account.
     public boolean asLineOfCreditAccount(){
         if (this.accounts.isEmpty()) {
             return false;
@@ -183,10 +188,12 @@ public class Client implements User {
         return false;
     }
 
+    // Returns true if there is enough paper money to carry out the transaction.
     public boolean asPaperMoney(float amount){
         return amount <= this.paperMoney;
     }
 
+    // Returns true if the account name corresponds to a mortgage account.
     public boolean isMortgageAccount(String accountName){
         for (Account indAccount: this.accounts){
             if (indAccount.getSelectableName().equals(accountName)){
@@ -199,6 +206,7 @@ public class Client implements User {
         return false;
     }
 
+    // Adds a checking account to the client
     public void addCheckingAccount(String name){
         String query = String.format(
                         "insert into Accounts(accountOwner, AccountType, accountName, balance)\n" +
@@ -232,6 +240,7 @@ public class Client implements User {
 
     }
 
+    // Adds a savings account to the client.
     public void addSavingAccount(String name){
         String query = String.format(
                 "insert into Accounts(accountOwner, AccountType, accountName, balance)\n" +
@@ -262,6 +271,7 @@ public class Client implements User {
         System.out.println(account);
     }
 
+    // Adds a mortgage account to the client.
     public void addMortgageAccount(String name){
         String query = String.format(
                 "insert into Accounts(accountOwner, AccountType, accountName, balance)\n" +
@@ -291,6 +301,7 @@ public class Client implements User {
 
     }
 
+    // Adds a line of credit to the client.
     public void addLineOfCreditAccount(String name){
         String query = String.format(
                 "insert into Accounts(accountOwner, AccountType, accountName, balance)\n" +
@@ -319,6 +330,7 @@ public class Client implements User {
         System.out.println(account);
     }
 
+    // Returns the selectable names of all account but the line of credit.
     public ArrayList<String> getCanDepositAccounts(){
         ArrayList<String> result = new ArrayList<>();
 
@@ -329,6 +341,7 @@ public class Client implements User {
         return result;
     }
 
+    // Returns the name of all checking account.
     public ArrayList<String> getAllCheckingAccounts(){
         ArrayList<String> result = new ArrayList<>();
 
@@ -339,6 +352,7 @@ public class Client implements User {
         return result;
     }
 
+    // Returns the selectable name of all the account.
     public ArrayList<String> getAllAccounts(){
         ArrayList<String> result = new ArrayList<>();
 
@@ -349,6 +363,7 @@ public class Client implements User {
         return result;
     }
 
+    // Returns the balance of the accounts.
     public ArrayList<String> getAllBalance(){
         ArrayList<String> result = new ArrayList<>();
 
@@ -364,6 +379,7 @@ public class Client implements User {
         return result;
     }
 
+    // Returns the grand total.
     public String getGrandTotal(){
         String accountBalance = String.format("$%.2f", this.grandTotal);
         Character c = accountBalance.charAt(1);
@@ -374,6 +390,7 @@ public class Client implements User {
         return accountBalance;
     }
 
+    // Withdraws money, updates the database, adds a transaction and returns true if it is every thing went well.
     public boolean withdraw(String accountName, float amount){
         DecimalFormat df = new DecimalFormat("#.00");
         float fAmount = Float.parseFloat(df.format(amount));
@@ -429,6 +446,8 @@ public class Client implements User {
         return result;
     }
 
+    // Withdraws money from a mortgage account, updates the database, adds a transaction
+    // and returns true if it is every thing went well.
     public boolean withdrawMortgage(String accountName, float amount, String admin){
         DecimalFormat df = new DecimalFormat("#.00");
         float fAmount = Float.parseFloat(df.format(amount));
@@ -479,6 +498,8 @@ public class Client implements User {
         return result;
     }
 
+    // Withdraws money and takes out the rest form the line of credit, updates the database,
+    // adds a transaction and returns true if it is every thing went well.
     public void withdrawAndUseLineOfCredit(String accountName, float amount){
         DecimalFormat df = new DecimalFormat("#.00");
         float fAmount = Float.parseFloat(df.format(amount));
@@ -544,6 +565,8 @@ public class Client implements User {
         observableGrandTotal.set(this.getGrandTotal());
     }
 
+    // Withdraws money from a mortgage and takes out the rest form the line of credit, updates the database,
+    // adds a transaction and returns true if it is every thing went well.
     public void withdrawMortgageAndUseLineOfCredit(String accountName, float amount, String admin){
         DecimalFormat df = new DecimalFormat("#.00");
         float fAmount = Float.parseFloat(df.format(amount));
@@ -605,6 +628,7 @@ public class Client implements User {
         observableGrandTotal.set(this.getGrandTotal());
     }
 
+    // Pay a bill then updated the database.
     public boolean payBill(String accountName, String billName, float amount){
         DecimalFormat df = new DecimalFormat("#.00");
         float fAmount = Float.parseFloat(df.format(amount + 1.25));
@@ -660,6 +684,7 @@ public class Client implements User {
         return result;
     }
 
+    // Makes a transfer and updates the database.
     public boolean transfer(String from, String to, float amount){
         DecimalFormat df = new DecimalFormat("#.00");
         float fAmount = Float.parseFloat(df.format(amount));
@@ -736,6 +761,7 @@ public class Client implements User {
         return result;
     }
 
+    // deposits to an account.
     public void deposit(String accountName, float amount){
         DecimalFormat df = new DecimalFormat("#.00");
         float fAmount = Float.parseFloat(df.format(amount));
@@ -780,6 +806,7 @@ public class Client implements User {
 
     }
 
+    // deposit to an account.
     public void deposit(String accountName, float amount, String admin){
         DecimalFormat df = new DecimalFormat("#.00");
         float fAmount = Float.parseFloat(df.format(amount));
@@ -824,6 +851,7 @@ public class Client implements User {
 
     }
 
+    // add bonus to all client savings account.
     public void addSavingsBonus(String admin){
         for (Account indSavings: allSavingsAndCheckingAccount){
             if (indSavings.getTag().equals("Saving")){
@@ -838,6 +866,7 @@ public class Client implements User {
         }
     }
 
+    // Charge interest to the client line of credit.
     public void addLOCInterest(String admin){
         if (this.asLineOfCreditAccount()){
             float accountBalance = Math.abs(this.LOCAccount.getBalance());
@@ -876,6 +905,7 @@ public class Client implements User {
         }
     }
 
+    // Returns all the transaction of a specific account.
     public ArrayList<Transaction> getTransactions(String accountName){
         String query = "";
         ArrayList<Transaction> transactions = new ArrayList<>();
@@ -943,6 +973,7 @@ public class Client implements User {
         return transactions;
     }
 
+    // Checks if server can be connected to.
     public static boolean canConnectToServer(){
         try {
             Class.forName(CLASS_NAME);
@@ -955,6 +986,7 @@ public class Client implements User {
         return true;
     }
 
+    // Creates a new client and returns the object.
     public static Client createClient(String code, String PIN, String fullName, String phoneNumber, String email){
         String query = String.format(
                 "insert into Clients(clientCode, fullName, phone, email, PIN, blocked)\n" +
@@ -979,6 +1011,7 @@ public class Client implements User {
         return new Client(code);
     }
 
+    // Checks if the code is stored in the client database.
     public static boolean isClient(String code){
 //        String query = String.format("select * from Clients where Clients.clientCode = \"%s\" ", code);
         String query = String.format("select clientCode from Clients where Clients.clientCode = \"%s\" ", code);

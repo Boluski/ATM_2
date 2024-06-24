@@ -54,8 +54,6 @@ public class LoginController {
 
     @FXML
     void handleLogin(ActionEvent event) {
-        System.out.println("Login Clicked!");
-
         String userCode = codeInput.getText();
         String userPIN = PINInput.getText();
         boolean asClient = clientRadio.isSelected();
@@ -70,12 +68,10 @@ public class LoginController {
                     if (Client.canConnectToServer()){
                         if (Client.isClient(userCode)){
                             currentUser = new Client(userCode);
-                            System.out.println(currentUser);
 
                             if (attempts < 3){
                                 if(!currentUser.isBlocked()){
                                     if(currentUser.isAuthenticated(userPIN)){
-                                        System.out.println("User is authenticated");
                                         FXMLLoader root;
                                         try {
                                             root = new FXMLLoader(ATM.class.getResource("Client.fxml"));
@@ -136,11 +132,9 @@ public class LoginController {
                 }else {
                     if (Admin.canConnectToServer()){
                         if (Admin.isAdmin(userCode)){
-                            System.out.println("We are doing something.");
                             currentAdmin = new Admin(userCode);
 
                             if (currentAdmin.isAuthenticated(userPIN)){
-                                System.out.println("User is authenticated");
                                 FXMLLoader root;
                                 try {
                                     root = new FXMLLoader(ATM.class.getResource("Admin.fxml"));

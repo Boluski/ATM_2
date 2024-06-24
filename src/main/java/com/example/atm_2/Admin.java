@@ -9,15 +9,11 @@ import java.util.ArrayList;
 public class Admin implements User{
     private String code;
     private String PIN;
-
     private float paperMoney;
-
     private ArrayList<Client> allClients = new  ArrayList<>();
-
     public ObservableList<String> Clients = FXCollections.observableArrayList();
 
-
-
+    // Creates an admin instance and gets all the data that are requires form the database.
     public Admin(String code){
         String query =
                 String.format("select * from Admins where Admins.adminCode = \"%s\" ", code);
@@ -50,67 +46,27 @@ public class Admin implements User{
                 this.paperMoney = rs.getFloat(1);
             }
 
-//
-//            rs = stmt.executeQuery(accountQuery);
-//
-//            while (rs.next()){
-//                int accountType = rs.getInt(1);
-//                String accountName = rs.getString(2);
-//                float balance = rs.getFloat(3);
-//
-//                Account account = switch (accountType) {
-//                    case 2 -> new Saving(accountName, balance);
-//                    case 3 -> new Mortgage(accountName, balance);
-//                    case 4 -> new LineOfCredit(accountName, balance);
-//                    default -> new Checking(accountName, balance);
-//                };
-//
-//                boolean isLOC = false;
-//                if (!account.getTag().equals("LineOfCredit")){
-//                    this.canDepositAccount.add(account);
-//
-//                    if (account.getTag().equals("Checking")){
-//                        this.allCheckingAccount.add((Checking) account);
-//                        this.allSavingsAndCheckingAccount.add(account);
-//                        observableCheckingAndSaving.add(account.getSelectableName());
-//                    }
-//
-//                    if (account.getTag().equals("Saving")){
-//                        this.allSavingsAndCheckingAccount.add(account);
-//                        observableCheckingAndSaving.add(account.getSelectableName());
-//                    }
-//
-//                }else {
-//                    this.LOCAccount = (LineOfCredit) account;
-//                    this.grandTotal -= account.getBalance();
-//                    isLOC = true;
-//                }
-//
-//                if(!isLOC){
-//                    this.grandTotal += account.getBalance();
-//                }
-//                this.accounts.add(account);
-//            }
-//
-//            this.observableGrandTotal.set(this.getGrandTotal());
-
         }catch (Exception e){
             e.printStackTrace();
         }
     }
 
+    // Returns the admin code
     public String getCode(){
         return this.code;
     }
 
+    // Returns true if the admin is authenticated. If the password match what was given.
     public boolean isAuthenticated(String PIN){
         return this.PIN.equals(PIN);
     }
 
+    // Returns the paper money.
     public float getPaperMoney(){
         return this.paperMoney;
     }
 
+    // Sets the paper money.
     public void setPaperMoney(float money){
         this.paperMoney = money;
 
@@ -133,27 +89,33 @@ public class Admin implements User{
         }
     }
 
+
+    // Adds 1% bonus to all savings account.
     public void addBonusToAllSavings(){
         for (Client indClient: this.allClients){
             indClient.addSavingsBonus(this.code);
         }
     }
 
+    // Adds a Client object to the observable array.
     public void addClient(Client newClient){
         this.allClients.add(newClient);
         this.Clients.add(newClient.toString());
     }
 
+    // Add a 5% interest to all line of credits.
     public void addInterest(String admin){
         for (Client indClient: this.allClients){
             indClient.addLOCInterest(admin);
         }
     }
 
+    // Returns the first client in the array.
     public Client getClient(){
         return this.allClients.getFirst();
     }
 
+    // Returns the client based on the client name.
     public Client getClient(String name){
 
         for (Client indClient: this.allClients){
@@ -164,6 +126,7 @@ public class Admin implements User{
         return this.allClients.getFirst();
     }
 
+    // Returns true if it can connect to the server.
     public static boolean canConnectToServer(){
         try {
             Class.forName(CLASS_NAME);
@@ -175,6 +138,8 @@ public class Admin implements User{
 
         return true;
     }
+
+    // Returns true if the code is in the database.
     public static boolean isAdmin(String code){
 //        String query = String.format("select * from Clients where Clients.clientCode = \"%s\" ", code);
         String query = String.format("select adminCode from Admins where Admins.adminCode = \"%s\" ", code);

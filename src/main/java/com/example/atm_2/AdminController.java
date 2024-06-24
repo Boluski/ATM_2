@@ -70,9 +70,20 @@ public class AdminController {
         clientsComboBox.setValue(currentAdmin.Clients.getFirst());
 
         accountsComboBox.setItems(activeClient.observableAllAccount);
-        accountsComboBox.setValue(activeClient.observableAllAccount.getFirst());
 
-        withdrawButton.setDisable(!activeClient.isMortgageAccount(activeClient.observableAllAccount.getFirst()));
+        try {
+            accountsComboBox.setValue(activeClient.observableAllAccount.getFirst());
+        }catch (Exception e){
+            accountsComboBox.setDisable(true);
+            showTransactionButton.setDisable(true);
+        }
+
+        try {
+            withdrawButton.setDisable(!activeClient.isMortgageAccount(activeClient.observableAllAccount.getFirst()));
+        }catch (Exception e){
+            withdrawButton.setDisable(true);
+        }
+
 
 
         checkBox = new SimpleBooleanProperty(activeClient.isBlocked());
