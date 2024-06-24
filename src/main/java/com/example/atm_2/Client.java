@@ -405,7 +405,7 @@ public class Client implements User {
                 "set balance = %.2f", this.paperMoney);
 
         String transactionQuery = String.format(
-                        "insert into Transaction_2(client, accountName, accountType, amount, transactionType, balance)\n" +
+                        "insert into Transaction_4(client, accountName, accountType, amount, transactionType, balance)\n" +
                         "values(\"%s\", \"%s\", %x, %.2f, 2, %.2f)", this.code, account.getName(), account.getDbCode(), fAmount, account.getBalance());
 
         try {
@@ -456,7 +456,7 @@ public class Client implements User {
                 account.getBalance(), this.code, account.getName());
 
         String transactionQuery = String.format(
-                "insert into Transaction_2(client, admin, accountName, accountType, amount, transactionType, balance)\n" +
+                "insert into Transaction_4(client, admin, accountName, accountType, amount, transactionType, balance)\n" +
                         "values(\"%s\", \"%s\", \"%s\", %x, %.2f, 2, %.2f)", this.code, admin, account.getName(), account.getDbCode(), fAmount, account.getBalance());
 
         try {
@@ -521,7 +521,7 @@ public class Client implements User {
                 "set balance = %.2f", this.paperMoney);
 
         String transactionQuery = String.format(
-                        "insert into Transaction_2(client, accountName, accountType, amount, LOCAmount, transactionType, balance)\n" +
+                        "insert into Transaction_4(client, accountName, accountType, amount, LOCAmount, transactionType, balance)\n" +
                         "values(\"%s\", \"%s\", %x, %.2f, %.2f, 2, %.2f)", this.code, account.getName(), account.getDbCode(), accountFunds, fAmount, account.getBalance());
 
         try {
@@ -583,7 +583,7 @@ public class Client implements User {
 
 
         String transactionQuery = String.format(
-                "insert into Transaction_2(client, admin, accountName, accountType, amount, LOCAmount, transactionType, balance)\n" +
+                "insert into Transaction_4(client, admin, accountName, accountType, amount, LOCAmount, transactionType, balance)\n" +
                         "values(\"%s\", \"%s\", \"%s\", %x, %.2f, %.2f, 2, %.2f)", this.code, admin, account.getName(), account.getDbCode(), accountFunds, fAmount, account.getBalance());
 
         try {
@@ -637,7 +637,7 @@ public class Client implements User {
                         account.getBalance(), this.code, account.getName());
 
         String transactionQuery = String.format(
-                        "insert into Transaction_2(client, accountName, accountType, amount, transactionType, balance, billName)\n" +
+                        "insert into Transaction_4(client, accountName, accountType, amount, transactionType, balance, billName)\n" +
                         "values(\"%s\", \"%s\", 1, %.2f, 4, %.2f, \"%s\")", this.code, account.getName(), fAmount, account.getBalance(), billName);
 
         try {
@@ -714,8 +714,8 @@ public class Client implements User {
                         toAccount.getBalance(),this.code, toAccount.getName());
 
         String transactionQuery = String.format(
-                "insert into Transaction_2(client, accountName, accountType, amount, transactionType, movedToAccountType, balance)\n" +
-                        "values(\"%s\", \"%s\", 1, %.2f, 3, %x, %.2f)", this.code, toAccount.getName(), fAmount, toAccount.getDbCode(), fromAccount.getBalance());
+                "insert into Transaction_4(client, accountName, accountType, amount, transactionType, movedToAccountType, movedToAccountName, balance)\n" +
+                        "values(\"%s\", \"%s\", 1, %.2f, 3, %x, \"%s\", %.2f)", this.code, fromAccount.getName(), fAmount, toAccount.getDbCode(), toAccount.getName(), fromAccount.getBalance());
 
         try {
             Class.forName(CLASS_NAME);
@@ -754,7 +754,7 @@ public class Client implements User {
 
 
                 String transactionQuery = String.format(
-                        "insert into Transaction_2(client, accountName, accountType, amount, transactionType, balance)\n" +
+                        "insert into Transaction_4(client, accountName, accountType, amount, transactionType, balance)\n" +
                         "values(\"%s\", \"%s\", %x, %.2f, 1, %.2f)", this.code, account.getName(), account.getDbCode(), fAmount, account.getBalance());
 
                 try {
@@ -798,7 +798,7 @@ public class Client implements User {
 
 
                 String transactionQuery = String.format(
-                        "insert into Transaction_2(client, admin, accountName, accountType, amount, transactionType, balance)\n" +
+                        "insert into Transaction_4(client, admin, accountName, accountType, amount, transactionType, balance)\n" +
                                 "values(\"%s\", \"%s\", \"%s\", %x, %.2f, 1, %.2f)", this.code, admin, account.getName(), account.getDbCode(), fAmount, account.getBalance());
 
                 try {
@@ -854,7 +854,7 @@ public class Client implements User {
                     this.LOCAccount.getBalance(), this.code, this.LOCAccount.getName());
 
             String transactionQuery = String.format(
-                            "insert into Transaction_2(client, admin, accountName, accountType, amount, transactionType, balance)\n" +
+                            "insert into Transaction_4(client, admin, accountName, accountType, amount, transactionType, balance)\n" +
                             "values(\"%s\", \"%s\", \"%s\", %x, %.2f, 4, %.2f)", this.code, admin, this.LOCAccount.getName(), this.LOCAccount.getDbCode(), total, this.LOCAccount.getBalance());
 
 
@@ -874,6 +874,43 @@ public class Client implements User {
             }
 
         }
+    }
+
+    public ArrayList<Transaction> getTransactions(String accountName){
+        String query = "";
+        ArrayList<Transaction> transactions = new ArrayList<>();
+        for (Account indAccount:this.accounts){
+            if (indAccount.getSelectableName().equals(accountName)){
+                query = String.format("select transactionID, LOCAmount, admin, amount, movedToAccountName, balance, billName, transactionDate from Transaction_4 where client=\"%s\" and accountName=\"%s\"", code, indAccount.getName());
+            }
+        }
+
+
+        try {
+            Class.forName(CLASS_NAME);
+            Connection con = DriverManager.getConnection(CONNECTION_STRING);
+            Statement stmt = con.createStatement();
+
+
+            ResultSet rs = stmt.executeQuery(query);
+
+            while (rs.next()){
+                transactions.add(new Transaction(
+                        rs.getString(1),
+                        rs.getString(2),
+                        rs.getString(3),
+                        rs.getString(4),
+                        rs.getString(5),
+                        rs.getString(6),
+                        rs.getString(7),
+                        rs.getString(8)));
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return transactions;
     }
 
     public static boolean canConnectToServer(){

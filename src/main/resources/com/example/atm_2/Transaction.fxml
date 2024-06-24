@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+
+<TableView fx:id="transactionTable" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="603.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/20.0.1" fx:controller="com.example.atm_2.TransactionController">
+  <columns>
+    <TableColumn fx:id="IDColumn" prefWidth="120.0" text="Transaction ID" />
+      <TableColumn fx:id="adminColumn" prefWidth="120.0" text="Admin" />
+      <TableColumn fx:id="amountColumn" prefWidth="120.0" text="Amount" />
+      <TableColumn fx:id="LOCColumn" prefWidth="120.0" text="Taken From Line Of Creadit" />
+      <TableColumn fx:id="moveToColumn" prefWidth="120.0" text="To Account" />
+      <TableColumn fx:id="balanceCulumn" prefWidth="120.0" text="Balance" />
+      <TableColumn fx:id="billColumn" prefWidth="120.0" text="Bill Name" />
+      <TableColumn fx:id="dateColumn" prefWidth="120.0" text="Date" />
+  </columns>
+</TableView>

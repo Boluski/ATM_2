@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import javafx.beans.property.SimpleBooleanProperty;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class AdminController {
 
@@ -190,7 +191,24 @@ public class AdminController {
 
     @FXML
     void handleShowTransaction(ActionEvent event) {
+        ArrayList<Transaction> transactions;
+        transactions = activeClient.getTransactions(accountsComboBox.getSelectionModel().getSelectedItem());
+        try {
+            root = new FXMLLoader(ATM.class.getResource("Transaction.fxml"));
+            Scene scene = new Scene(root.load());
+            TransactionController controller = root.getController();
+            controller.setData(transactions);
 
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.WINDOW_MODAL);
+            dialog.initOwner(((Node)(event.getSource())).getScene().getWindow());
+            dialog.setTitle("Transaction");
+
+            dialog.setScene(scene);
+            dialog.showAndWait();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     @FXML
